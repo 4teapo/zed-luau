@@ -1,0 +1,25 @@
+id = "luau"
+name = "Luau"
+version = "0.1.0"
+schema_version = 1
+authors = ["Edwin Aronsson <4teapo@gmail.com>"]
+description = "Luau support."
+repository = ""
+
+[language_servers.luau-lsp]
+name = "Luau LSP"
+language = "Luau"
+
+[grammars.luau]
+repository = "https://github.com/tree-sitter-grammars/tree-sitter-luau"
+commit = "5aa9b88a8e3327276ec6e72de997f04ac80b1ae4"
+
+# [slash_commands.start-rojo-sourcemap-generation]
+# description = "Starts generating and updating a rojo sourcemap file as the files change."
+# requires_argument = false
+# tooltip_text = "IDEK WHAT THIS IS x1 :c"
+
+# [slash_commands.stop-rojo-sourcemap-generation]
+# description = "Stops generating and updating a rojo sourcemap file."
+# requires_argument = false
+# tooltip_text = "IDEK WHAT THIS IS x2 :c"

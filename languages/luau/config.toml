@@ -1,0 +1,17 @@
+name = "Luau"
+grammar = "luau"
+path_suffixes = ["luau"]
+line_comments = ["-- "]
+autoclose_before = ";:.,=}])>"
+brackets = [
+        { start = "{", end = "}", close = true, newline = true },
+        { start = "[", end = "]", close = true, newline = true },
+        { start = "(", end = ")", close = true, newline = true },
+        { start = "\"", end = "\"", close = true, newline = false, not_in = [
+                "string",
+        ] },
+        { start = "'", end = "'", close = false, newline = false, not_in = [
+                "string",
+        ] },
+]
+collapsed_placeholder = "--[ ... ]--"
