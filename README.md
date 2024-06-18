@@ -29,7 +29,7 @@ The default configuration looks like this:
 						/// Whether or not all boolean, non-experimental fflags
 						/// should be enabled by default.
 						"enable_by_default": true,
-						/// Whether or not currently enabled FFlags should synced
+						/// Whether or not currently enabled FFlags should be synced
 						/// with Roblox's currently published FFlags (only the ones
 						/// starting with FFlagLuau).
 						"sync": false,
