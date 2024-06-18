@@ -2,7 +2,7 @@ id = "luau"
 name = "Luau"
 version = "0.1.0"
 schema_version = 1
-authors = ["Edwin Aronsson <4teapo@gmail.com>"]
+authors = ["teapo <4teapo@gmail.com>"]
 description = "Luau support."
 repository = "https://github.com/4teapo/zed-luau"
 

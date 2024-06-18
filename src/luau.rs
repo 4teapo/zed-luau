@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
+use std::io;
 // use std::process::{Child, Command};
 use zed::lsp::CompletionKind;
 use zed::settings::LspSettings;
@@ -10,6 +11,8 @@ mod roblox;
 
 const FFLAG_URL: &str =
     "https://clientsettingscdn.roblox.com/v1/settings/application?applicationName=PCDesktopClient";
+
+const FFLAG_FILE_NAME: &str = "fflags.json";
 
 struct LuauExtension {
     cached_binary_path: Option<String>,
@@ -158,6 +161,14 @@ impl LuauExtension {
 
 impl zed::Extension for LuauExtension {
     fn new() -> Self {
+        // Try deleting files for definitions, docs & fflags to make sure they are downladed again
+        // later, so that they're up to date.
+        let _: io::Result<()> = fs::remove_file(FFLAG_FILE_NAME);
+        let _: io::Result<()> = fs::remove_file(roblox::API_DOCS_FILE_NAME);
+        let _: io::Result<()> = fs::remove_file(roblox::DEFINITIONS_FILE_NAME_ROBLOX_SCRIPT);
+        let _: io::Result<()> = fs::remove_file(roblox::DEFINITIONS_FILE_NAME_LOCAL_USER);
+        let _: io::Result<()> = fs::remove_file(roblox::DEFINITIONS_FILE_NAME_PLUGIN);
+        let _: io::Result<()> = fs::remove_file(roblox::DEFINITIONS_FILE_NAME_NONE);
         Self {
             cached_binary_path: None,
             cached_fflag_file_path: None,
