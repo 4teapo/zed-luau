@@ -453,10 +453,10 @@ impl zed::Extension for LuauExtension {
 
     fn language_server_workspace_configuration(
         &mut self,
-        _language_server_id: &zed::LanguageServerId,
+        language_server_id: &zed::LanguageServerId,
         _worktree: &zed::Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        let settings = LspSettings::for_worktree("luau-lsp", _worktree)
+        let settings = LspSettings::for_worktree(language_server_id.as_ref(), _worktree)
             .ok()
             .and_then(|lsp_settings| lsp_settings.settings.clone())
             .unwrap_or_default();
