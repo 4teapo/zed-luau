@@ -63,14 +63,11 @@ The default configuration looks like this:
 If zed-luau isn't working as it should, start by inspecting the logs using
 `zed: open log` and `debug: open language server logs`. If zed-luau found an
 error in your configuration, the error message can be viewed in the
-(non-language-server) log menu. File an issue on github if you believe what
-you're experiencing is a problem with the extension.
+(non-language-server) log menu. If there was an error in your configuration,
+you may need to reload the workspace after fixing it, in order for the language
+server to start working again.
 
-If there was an error in your configuration, you may need to reload the
-workspace after fixing it, in order for the language server to start working
-again.
-
-You can directly configure the underlying language server using
+If needed, you can directly configure the underlying language server using
 `lsp.luau-lsp.settings.luau-lsp`. The settings that can be configured can be
 viewed here:
 https://github.com/JohnnyMorganz/luau-lsp/blob/ae63ce5e10bc5d42122669fc20606fc5ec2fe54d/src/include/LSP/ClientConfiguration.hpp#L220.
@@ -140,16 +137,6 @@ look like this:
 	"languages": {
 		// ...
 		"Luau": {
-			// ...
-			"formatter": {
-				"external": {
-					"command": "stylua",
-					"arguments": ["-"]
-				}
-			},
-			// ...
-		},
-		"Lua": {
 			// ...
 			"formatter": {
 				"external": {
