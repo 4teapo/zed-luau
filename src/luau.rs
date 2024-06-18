@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 // use std::process::{Child, Command};
 use zed::lsp::CompletionKind;
@@ -12,6 +13,7 @@ const FFLAG_URL: &str =
 
 struct LuauExtension {
     cached_binary_path: Option<String>,
+    cached_fflag_file_path: Option<String>,
     // sourcemap_gen: Option<Child>,
 }
 
@@ -137,12 +139,28 @@ impl LuauExtension {
 
         Ok(binary_path)
     }
+    fn fflag_file_path(&mut self) -> Result<String> {
+        if let Some(path) = &self.cached_fflag_file_path {
+            if is_file(path) {
+                return Ok(path.clone());
+            }
+        }
+
+        let file_path = "fflags.json";
+        zed::download_file(FFLAG_URL, file_path, zed::DownloadedFileType::Uncompressed)
+            .map_err(|e| format!("failed to download file: {e}"))?;
+
+        self.cached_fflag_file_path = Some(file_path.to_string());
+
+        Ok(file_path.to_string())
+    }
 }
 
 impl zed::Extension for LuauExtension {
     fn new() -> Self {
         Self {
             cached_binary_path: None,
+            cached_fflag_file_path: None,
             // sourcemap_gen: None,
         }
     }
@@ -172,10 +190,10 @@ impl zed::Extension for LuauExtension {
                     }
                 }
 
+                /*
                 if let Some(sourcemap_settings_val) = roblox_settings.get("sourcemap") {
                     // Autogenerating sourcemaps is currently disabled, because Zed does not support creating child
                     // processes from extensions.
-                    /*
                     if let Some(autogen_val) = sourcemap_settings_val.get("autogenerate") {
                         let Some(autogen_sourcemap) = autogen_val.as_bool() else {
                             return Err("invalid luau-lsp settings: `settings.ext.roblox.sourcemap.autogenerate must be a bool, but isn't.".into());
@@ -193,8 +211,9 @@ impl zed::Extension for LuauExtension {
                                 return Err(format!("failed to generate sourcemap: got IO error when spawning child process: \"{}\"", e).into());
                             }
                         }
-                    }*/
+                    }
                 }
+                */
 
                 if !is_file(roblox::API_DOCS_FILE_NAME) {
                     roblox::download_api_docs()?;
@@ -249,6 +268,111 @@ impl zed::Extension for LuauExtension {
                     )
                     .into(),
                 );
+
+                let proj_root_str_f = &format!("{}/", worktree.root_path());
+
+                if let Some(definitions_settings_val) = ext_settings.get("definitions") {
+                    let Some(definitions_settings) = definitions_settings_val.as_array() else {
+                        return Err("invalid luau-lsp settings: `settings.ext.definitions` must be an array, but isn't.".into());
+                    };
+                    for def in definitions_settings {
+                        let Some(def_str) = def.as_str() else {
+                            return Err("invalid luau-lsp settings: `settings.ext.definitions.*` all elements must be strings, but one or more aren't.".into());
+                        };
+                        let begin = if def_str.starts_with('/') {
+                            ""
+                        } else {
+                            proj_root_str_f
+                        };
+                        args.push(format!("--definitions={begin}{def_str}").into());
+                    }
+                }
+
+                if let Some(doc_settings_val) = ext_settings.get("documentation") {
+                    let Some(doc_settings) = doc_settings_val.as_array() else {
+                        return Err("invalid luau-lsp settings: `settings.ext.documentation` must be an array, but isn't.".into());
+                    };
+                    for def in doc_settings {
+                        let Some(doc_str) = def.as_str() else {
+                            return Err("invalid luau-lsp settings: `settings.ext.documentation.*` all elements must be strings, but one or more aren't.".into());
+                        };
+                        let begin = if doc_str.starts_with('/') {
+                            ""
+                        } else {
+                            proj_root_str_f
+                        };
+                        args.push(format!("--docs={begin}{doc_str}").into());
+                    }
+                }
+
+                let Some(fflags_settings_val) = ext_settings.get("fflags") else {
+                    break 'exit;
+                };
+
+                let Some(fflags_settings) = fflags_settings_val.as_object() else {
+                    return Err("invalid luau-lsp settings: `settings.ext.fflags` must be an object, but isn't.".into());
+                };
+
+                if let Some(enable_by_default_val) = fflags_settings.get("enable_by_default") {
+                    let Some(enable_by_default) = enable_by_default_val.as_bool() else {
+                        return Err("invalid luau-lsp settings: `settings.ext.fflags.enable_by_default` must be a bool, but isn't.".into());
+                    };
+                    if enable_by_default == false {
+                        args.push("--no-flags-enabled".into());
+                    }
+                }
+
+                let mut fflags: HashMap<String, String> = HashMap::new();
+
+                // NOTE: This needs to happen after enable_by_default, so that
+                // it overrides those, but before override, so that these can
+                // get overridden.
+                if let Some(sync_val) = fflags_settings.get("sync") {
+                    let Some(sync) = sync_val.as_bool() else {
+                        return Err("invalid luau-lsp settings: `settings.ext.fflags.sync` must be a bool, but isn't.".into());
+                    };
+                    if sync == true {
+                        let path = self.fflag_file_path()?;
+                        let as_str = fs::read_to_string(path)
+                            .map_err(|e| format!("failed to read fflags.json: {e}"))?;
+                        let json: serde_json::Value = serde_json::from_str(&as_str)
+                            .map_err(|e| format!("failed to parse fflags.json: {e}"))?;
+                        let Some(json_map) = json.as_object() else {
+                            return Err("failed to sync fflags: error when parsing fetched fflags: fflags must be an object, but isn't.".into());
+                        };
+                        let Some(app_settings_val) = json_map.get("applicationSettings") else {
+                            return Err("failed to sync fflags: error when reading parsed fflags: json.applicationSettings must exist, but doesn't.".into());
+                        };
+                        let Some(app_settings) = app_settings_val.as_object() else {
+                            return Err("failed to sync fflags: error when reading parsed fflags: json.applicationSettings must be an object, but isn't.".into());
+                        };
+                        for (k, v) in app_settings.iter() {
+                            if !k.starts_with("FFlagLuau") {
+                                continue;
+                            }
+                            let Some(val) = v.as_str() else {
+                                return Err("failed to sync fflags: error when reading parsed fflags: json.applicationSettings.* all values must be strings, but one or more aren't.".into());
+                            };
+                            fflags.insert(k[5..].into(), val.to_string());
+                        }
+                    }
+                }
+
+                if let Some(override_val) = fflags_settings.get("override") {
+                    let Some(override_map) = override_val.as_object() else {
+                        return Err("invalid luau-lsp settings: `settings.ext.fflags.override` must be an object, but isn't.".into());
+                    };
+                    for (k, v) in override_map.iter() {
+                        let Some(val) = v.as_str() else {
+                            return Err("failed to apply fflag overrides: error when reading fflags: fflags.* all values must be strings, but one or more aren't.".into());
+                        };
+                        fflags.insert(k.clone(), val.to_string());
+                    }
+                }
+
+                for (k, v) in fflags.iter() {
+                    args.push(format!("--flag:{}={}", k, v).into());
+                }
             }
         }
 
@@ -266,7 +390,8 @@ impl zed::Extension for LuauExtension {
         worktree: &zed_extension_api::Worktree,
     ) -> Result<Option<serde_json::Value>> {
         let lsp_settings = LspSettings::for_worktree(language_server_id.as_ref(), worktree)?;
-        Ok(lsp_settings.initialization_options)
+        let initialization_options = lsp_settings.initialization_options;
+        Ok(initialization_options)
     }
 
     fn label_for_completion(

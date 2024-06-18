@@ -19,9 +19,24 @@ The default configuration looks like this:
 			"settings": {
 				"ext": {
 					"roblox": {
+						/// Whether or not Roblox-specific features should be enabled.
 						"enabled": false,
+						/// The security level of scripts.
 						"security_level": "roblox_script"
 					},
+					"fflags": {
+						/// Whether or not all boolean, non-experimental fflags should be enabled by default.
+						"enable_by_default": true,
+						/// Whether or not currently enabled FFlags should synced with Roblox's currently published FFlags (only the ones starting with FFlagLuau).
+						"sync": false,
+						/// Flags that are forced to some value.
+						"override": {}
+					},
+					/// Definition files to pass to the language server. If an element in this array begins with '/', it is interpreted as an absolute path, and otherwise as a relative path to the workspace root.
+					"definitions": [],
+					/// Documentation files to pass to the language server. If an element in this array begins with '/', it is interpreted as an absolute path, and otherwise as a relative path to the workspace root.
+					"documentation": [],
+					/// Whether or not the worktree binary, if any, should be preferred over installing the language server binary automatically and using that. It is important to set this to true if you're installing luau-lsp with Aftman or Foreman, for example.
 					"prefer_worktree_binary": false
 				}
 			}
