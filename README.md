@@ -1,15 +1,13 @@
 # zed-luau
-A Zed extension that adds support for the Luau programming language, a flavor
-of Lua made by Roblox.
+A [Zed](https://zed.dev/) extension that adds support for the [Luau programming language](https://luau-lang.org/).
 
-### Usage
-This extension can be configured using lsp settings in your `settings.json`
-file, which you can open using the `zed: open settings` command. See
-https://zed.dev/docs/configuring-zed for more information. Settings that are
-passed directly to the language server (luau-lsp) reside in `settings.luau-lsp`
-and settings that only this extension reads are put in `settings.ext`.
+### Installation
+To install zed-luau, you can use the extension menu in Zed, or clone the
+repository and install it as a dev extension with `zed: install dev extension`.
 
-The default configuration looks like this:
+### Configuring
+This extension can be configured using lsp settings. The default configuration
+looks like this:
 ```json
 {
 	// ...
@@ -17,6 +15,7 @@ The default configuration looks like this:
 		// ...
 		"luau-lsp": {
 			"settings": {
+				"luau-lsp": {},
 				"ext": {
 					"roblox": {
 						/// Whether or not Roblox-specific features should be enabled.
@@ -60,20 +59,12 @@ The default configuration looks like this:
 }
 ```
 
-If zed-luau isn't working as it should, start by inspecting the logs using
-`zed: open log` and `debug: open language server logs`. If zed-luau found an
-error in your configuration, the error message can be viewed in the
-(non-language-server) log menu. If there was an error in your configuration,
-you may need to reload the workspace after fixing it, in order for the language
-server to start working again.
-
-If needed, you can directly configure the underlying language server using
-`lsp.luau-lsp.settings.luau-lsp`. The settings that can be configured can be
-viewed here:
+Note that the `ext` settings are read only by this extension, while the `luau-lsp` settings are read directly by the language server itself. The
+configuration options for the latter can be viewed here:
 https://github.com/JohnnyMorganz/luau-lsp/blob/ae63ce5e10bc5d42122669fc20606fc5ec2fe54d/src/include/LSP/ClientConfiguration.hpp#L220.
 
-As an example, your configuration may look like this if you want inlay hints for
-function parameters:
+As an example, if you want to enable inlay hints and use strict datamodel
+types, your settings may look like this:
 ```json
 {
 	// ...
@@ -88,6 +79,9 @@ function parameters:
 				"luau-lsp": {
 					"inlayHints": {
 						"parameterNames": "all"
+					},
+					"diagnostics": {
+						"strictDatamodelTypes": true
 					}
 				}
 			}
@@ -99,9 +93,9 @@ function parameters:
 ```
 
 ### Additional information for Roblox users
-If you're a Roblox developer, you may want to enable the `roblox` setting. You
-will probably also prefer adding the following Zed tasks (using `zed: open
-tasks`):
+If you're a Roblox developer, you probably want to enable the `roblox` setting.
+If you're using Rojo, you should also add something along the lines of the
+following to your [Zed tasks](https://zed.dev/docs/tasks):
 ```json
 {
 	{
@@ -114,23 +108,26 @@ tasks`):
 		"command": "rojo serve default.project.json",
 		"use_new_terminal": true
 	},
-	// edit if needed
 	{
 		"label": "Write assets from out.rbxl with lune",
 		"command": "lune run write_assets"
 	},
-	// edit if needed
 	{
 		"label": "Rojo build out.rbxl",
 		"command": "rojo build --output out.rbxl"
 	}
 }
 ```
+
+### Having issues?
+You can start by checking the logs using `zed: open log`. If zed-luau emitted
+an error, you will find it there. You can also open the language server logs
+with `zed: open language server logs`.
+
 ### More tools
-For auto-formatting your code, see https://github.com/JohnnyMorganz/StyLua.
-If you install StyLua, you can use it for both Lua and Luau files, by setting
-the `formatter` for these languages to StyLua. Your `settings.json` may then
-look like this:
+For automatically formatting your code, see
+https://github.com/JohnnyMorganz/StyLua. If you install StyLua you can use it
+in Zed by setting it as the formatter for the languages you want. Your `settings.json` may then look like this:
 ```json
 {
 	// ...
