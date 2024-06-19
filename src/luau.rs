@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::fs;
-use std::io;
 // use std::process::{Child, Command};
 use zed::lsp::CompletionKind;
 use zed::settings::LspSettings;

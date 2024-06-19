@@ -120,9 +120,11 @@ following to your [Zed tasks](https://zed.dev/docs/tasks):
 ```
 
 ### Having issues?
-You can start by checking the logs using `zed: open log`. If zed-luau emitted
-an error, you will find it there. You can also open the language server logs
-with `zed: open language server logs`.
+If diagnostics isn't working for you, make sure you're using Zed v0.141.0 or
+later. If you're having a different problem, you can start by checking the logs
+using `zed: open log`. If zed-luau emitted an error, you will find it there.
+You can also open the language server logs with `zed: open language server
+logs`.
 
 ### More tools
 For automatically formatting your code, see
