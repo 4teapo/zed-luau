@@ -222,6 +222,15 @@ impl zed::Extension for LuauExtension {
         if let Some(Ok(ext_settings)) = get_ext_settings(language_server_id, worktree) {
             let proj_root_str_f = &format!("{}/", worktree.root_path());
 
+            fn is_path_absolute(path: &str) -> bool {
+                let (platform, _) = zed::current_platform();
+                if platform == zed::Os::Windows {
+                    path.contains(':')
+                } else {
+                    path.starts_with('/')
+                }
+            }
+
             if let Some(definitions_settings_val) = ext_settings.get("definitions") {
                 let Some(definitions_settings) = definitions_settings_val.as_array() else {
                     return Err("invalid luau-lsp settings: `settings.ext.definitions` must be an array, but isn't.".into());
@@ -230,7 +239,7 @@ impl zed::Extension for LuauExtension {
                     let Some(def_str) = def.as_str() else {
                         return Err("invalid luau-lsp settings: `settings.ext.definitions.*` all elements must be strings, but one or more aren't.".into());
                     };
-                    let begin = if def_str.starts_with('/') || def_str.contains(':') {
+                    let begin = if is_path_absolute(def_str) {
                         ""
                     } else {
                         proj_root_str_f
@@ -243,11 +252,11 @@ impl zed::Extension for LuauExtension {
                 let Some(doc_settings) = doc_settings_val.as_array() else {
                     return Err("invalid luau-lsp settings: `settings.ext.documentation` must be an array, but isn't.".into());
                 };
-                for def in doc_settings {
-                    let Some(doc_str) = def.as_str() else {
+                for doc in doc_settings {
+                    let Some(doc_str) = doc.as_str() else {
                         return Err("invalid luau-lsp settings: `settings.ext.documentation.*` all elements must be strings, but one or more aren't.".into());
                     };
-                    let begin = if doc_str.starts_with('/') || doc_str.contains(':') {
+                    let begin = if is_path_absolute(doc_str) {
                         ""
                     } else {
                         proj_root_str_f
