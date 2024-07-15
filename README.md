@@ -36,14 +36,14 @@ looks like this:
 						"override": {}
 					},
 					/// Definition files to pass to the language server.
-					/// If an element in this array begins with '/', it is interpreted as an
-					/// absolute path, and otherwise as a relative path to the workspace
-					/// root.
+					/// On Windows, the paths are interpreted as absolute ones if they contain ':'.
+					/// On other platforms, they're interpreted as absolute if they begin with '/'.
+					/// Relative paths are relative to the worktree.
 					"definitions": [],
 					/// Documentation files to pass to the language server.
-					/// If an element in this array begins with '/', it is interpreted as an
-					/// absolute path, and otherwise as a relative path to the workspace
-					/// root.
+					/// On Windows, the paths are interpreted as absolute ones if they contain ':'.
+					/// On other platforms, they're interpreted as absolute if they begin with '/'.
+					/// Relative paths are relative to the worktree.
 					"documentation": [],
 					/// Whether or not the worktree binary, if any, should be preferred over
 					/// installing the language server binary automatically and using that.
