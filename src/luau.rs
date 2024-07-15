@@ -230,7 +230,7 @@ impl zed::Extension for LuauExtension {
                     let Some(def_str) = def.as_str() else {
                         return Err("invalid luau-lsp settings: `settings.ext.definitions.*` all elements must be strings, but one or more aren't.".into());
                     };
-                    let begin = if def_str.starts_with('/') {
+                    let begin = if def_str.starts_with('/') || def_str.contains(':') {
                         ""
                     } else {
                         proj_root_str_f
@@ -247,7 +247,7 @@ impl zed::Extension for LuauExtension {
                     let Some(doc_str) = def.as_str() else {
                         return Err("invalid luau-lsp settings: `settings.ext.documentation.*` all elements must be strings, but one or more aren't.".into());
                     };
-                    let begin = if doc_str.starts_with('/') {
+                    let begin = if doc_str.starts_with('/') || doc_str.contains(':') {
                         ""
                     } else {
                         proj_root_str_f
@@ -366,7 +366,17 @@ impl zed::Extension for LuauExtension {
                 };
 
                 let current_dir = std::env::current_dir().unwrap();
-                let current_dir_str = current_dir.display();
+                let current_dir_str = 'outer: {
+                    let (platform, _) = zed::current_platform();
+                    if platform == zed::Os::Windows {
+                        // Remove the '/' at the beginning of the path, as Windows paths don't
+                        // have it. (Since we're in WASM, it always begins with a '/'.)
+                        if let Ok(path) = current_dir.strip_prefix("/") {
+                            break 'outer path.display();
+                        }
+                    }
+                    current_dir.display()
+                };
                 args.push(
                     format!("--docs={}/{}", &current_dir_str, roblox::API_DOCS_FILE_NAME).into(),
                 );
