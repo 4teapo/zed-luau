@@ -1,152 +1,192 @@
 # zed-luau
-A [Zed](https://zed.dev/) extension that adds support for the [Luau programming language](https://luau-lang.org/).
+A [Zed](https://zed.dev/) extension that adds support for the [Luau programming language](https://luau.org/).
 
-### Installation
-To install zed-luau, you can use the extension menu in Zed, or clone the
-repository and install it as a dev extension with `zed: install dev extension`.
+## Features
+- [x] Syntax highlighting (partially unsound due to bugs in the [official Tree-sitter grammar](https://github.com/tree-sitter-grammars/tree-sitter-luau))
+- [x] Non-optional luau-lsp features (excluding end autocomplete. See [#19788](https://github.com/zed-industries/zed/issues/19788))
+- [x] Roblox documentation and definitions
+- [x] Managing documentation and definitions
+- [x] Managing FFlags
+- [x] Runnables
+- [ ] Luau LSP plugin support (requires additions to Zed's extension API)
+- [ ] Bytecode generation (requires additions to Zed's extension API)
 
-### Configuring
-This extension can be configured using lsp settings. The default configuration
-looks like this:
-```json
+## Installation
+To install zed-luau, you can use the extension menu in Zed, or clone the repository and install it
+as a dev extension with `zed: install dev extension`.
+
+## Configuration
+This extension can be configured via your Zed `settings.json`. The default configuration looks like
+this:
+
+```jsonc
 {
-	// ...
-	"lsp": {
-		// ...
-		"luau-lsp": {
-			"settings": {
-				"luau-lsp": {},
-				"ext": {
-					"roblox": {
-						/// Whether or not Roblox-specific features should be enabled.
-						"enabled": false,
-						/// The security level of scripts.
-						/// Must be "roblox_script", "local_user", "plugin" or "none".
-						"security_level": "roblox_script"
-					},
-					"fflags": {
-						/// Whether or not all boolean, non-experimental fflags
-						/// should be enabled by default.
-						"enable_by_default": true,
-						/// Whether or not currently enabled FFlags should be synced
-						/// with Roblox's currently published FFlags (only the ones
-						/// starting with FFlagLuau).
-						"sync": false,
-						/// Flags that are forced to some value.
-						"override": {}
-					},
-					/// Definition files to pass to the language server.
-					/// On Windows, the paths are interpreted as absolute ones if they contain ':'.
-					/// On other platforms, they're interpreted as absolute if they begin with '/'.
-					/// Relative paths are relative to the worktree.
-					"definitions": [],
-					/// Documentation files to pass to the language server.
-					/// On Windows, the paths are interpreted as absolute ones if they contain ':'.
-					/// On other platforms, they're interpreted as absolute if they begin with '/'.
-					/// Relative paths are relative to the worktree.
-					"documentation": [],
-					/// Whether or not the worktree binary, if any, should be preferred over
-					/// installing the language server binary automatically and using that.
-					/// It is important to set this to true if you're installing luau-lsp with
-					/// Aftman or Foreman, for example.
-					"prefer_worktree_binary": false
-				}
-			}
-		},
-		// ...
-	},
-	// ...
+  "lsp": {
+    "luau-lsp": {
+      "settings": {
+        // luau-lsp settings. These are read by luau-lsp itself.
+        "luau-lsp": {},
+        // Extension settings. These are read by the extension itself.
+        "ext": {
+          "roblox": {
+            // Whether or not Roblox-specific features should be enabled.
+            "enabled": false,
+            // The security level of scripts.
+            // Must be "roblox_script", "local_user", "plugin" or "none".
+            "security_level": "roblox_script"
+          },
+          "fflags": {
+            // Whether or not all boolean, non-experimental fflags should be
+            // enabled by default.
+            "enable_by_default": false,
+            // Whether or not FFlag values should be synced with Roblox's
+            // default FFlag values.
+            "sync": true,
+            // FFlags that are forced to some value.
+            "override": {}
+          },
+          "binary": {
+            // Whether or not the extension should skip searching for a binary in your `$PATH` to
+            // use instead of installing one itself.
+            "ignore_system_version": false,
+            // The path to the language server binary you want to force the extension to use.
+            "path": "",
+            // Additional arguments to pass to the language server. If you want to set exactly which
+            // arguments are passed, use `lsp.luau-lsp.binary.path` & `lsp.luau-lsp.binary.args` instead.
+            "args": []
+          },
+          // Additional definition files to pass to the language server.
+          // On Windows, the paths are interpreted as absolute if and only if they contain ':'.
+          // On other platforms, they're interpreted as absolute if and only if they begin with '/'.
+          // Relative paths are relative to the worktree.
+          "definitions": [],
+          // Additional documentation files to pass to the language server.
+          // On Windows, the paths are interpreted as absolute if and only if they contain ':'.
+          // On other platforms, they're interpreted as absolute if and only if they begin with '/'.
+          // Relative paths are relative to the worktree.
+          "documentation": []
+        }
+      }
+    }
+  }
 }
 ```
 
-Note that the `ext` settings are read only by this extension, while the `luau-lsp` settings are read directly by the language server itself. The
-configuration options for the latter can be viewed here:
-https://github.com/JohnnyMorganz/luau-lsp/blob/ae63ce5e10bc5d42122669fc20606fc5ec2fe54d/src/include/LSP/ClientConfiguration.hpp#L220.
+The configuration options for `settings.luau-lsp` can be viewed
+[here](https://github.com/JohnnyMorganz/luau-lsp/blob/ae63ce5e10bc5d42122669fc20606fc5ec2fe54d/src/include/LSP/ClientConfiguration.hpp#L220).
+For example, to enable inlay hints, you can add the following to your Zed `settings.json`:
 
-As an example, if you want to enable inlay hints and use strict datamodel
-types, your settings may look like this:
-```json
+```jsonc
 {
-	// ...
-	"inlay_hints": {
-		"enabled": true
-	},
-	// ...
-	"lsp": {
-		// ...
-		"luau-lsp": {
-			"settings": {
-				"luau-lsp": {
-					"inlayHints": {
-						"parameterNames": "all"
-					},
-					"diagnostics": {
-						"strictDatamodelTypes": true
-					}
-				}
-			}
-		},
-		// ...
-	},
-	// ...
+  "inlay_hints": {
+    "enabled": true
+  },
+  "lsp": {
+    "luau-lsp": {
+      "settings": {
+        "luau-lsp": {
+          "inlayHints": {
+            "parameterNames": "all"
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
-### Additional information for Roblox users
-If you're a Roblox developer, you probably want to enable the `roblox` setting.
-If you're using Rojo, you should also add something along the lines of the
-following to your [Zed tasks](https://zed.dev/docs/tasks):
-```json
+## Formatting
+For automatically formatting your code, install
+[StyLua](https://github.com/JohnnyMorganz/StyLua), a Lua code formatter. Then,
+add the following to your Zed `settings.json`:
+
+```jsonc
 {
-	{
-		"label": "Rojo autogenerate sourcemap",
-		"command": "rojo sourcemap --watch --output sourcemap.json --include-non-scripts",
-		"use_new_terminal": true
-	},
-	{
-		"label": "Rojo serve default",
-		"command": "rojo serve default.project.json",
-		"use_new_terminal": true
-	},
-	{
-		"label": "Write assets from out.rbxl with lune",
-		"command": "lune run write_assets"
-	},
-	{
-		"label": "Rojo build out.rbxl",
-		"command": "rojo build --output out.rbxl"
-	}
+  "languages": {
+    "Luau": {
+      "formatter": {
+        "external": {
+          "command": "stylua",
+          "arguments": ["-"]
+        }
+      }
+    }
+  }
 }
 ```
 
-### Having issues?
-If diagnostics isn't working for you, make sure you're using Zed v0.141.0 or
-later. If you're having a different problem, you can start by checking the logs
-using `zed: open log`. If zed-luau emitted an error, you will find it there.
-You can also open the language server logs with `zed: open language server
-logs`.
+## Troubleshooting
+Syntax highlighting issues stem from problems in the syntax tree, which can be viewed with `debug: open syntax tree view`.
+Report syntax tree issues to the [tree-sitter-grammars/tree-sitter-luau](https://github.com/tree-sitter-grammars/tree-sitter-luau).
 
-### More tools
-For automatically formatting your code, see
-https://github.com/JohnnyMorganz/StyLua. If you install StyLua you can use it
-in Zed by setting it as the formatter for the languages you want. Your `settings.json` may then look like this:
+If zed-luau emitted an error, you will find it in `zed: open log`, and you can view the output of `luau-lsp`
+as well as communication between the extension and the language server with `zed: open language server logs`.
+
+## Runnables
+zed-luau marks expressions of the form
+```luau
+x("", ...)
+```
+where `x` is `it`, `describe`, or `test`, as runnables with the tag `luau-jest-test`, and sets
+`$ZED_CUSTOM_script` to the contents of the string parameter. This is helpful if you're using
+[jest-lua](https://github.com/jsdotlua/jest-lua) or a similar testing framework.
+
+## FAQ
+### How do I use [Rojo](https://rojo.space/) in Zed?
+You can add something along the lines of the following to your [Zed tasks](https://zed.dev/docs/tasks):
+
 ```json
+[
+  {
+    "label": "Rojo autogenerate sourcemap",
+    "command": "rojo sourcemap --watch --output sourcemap.json --include-non-scripts",
+  },
+  {
+    "label": "Rojo serve default.project.json",
+    "command": "rojo serve default.project.json",
+  },
+  {
+    "label": "Rojo build out.rbxl",
+    "command": "rojo build --output out.rbxl"
+  }
+]
+```
+
+### How do I use zed-luau for `.lua` files as well?
+By making Luau your preferred language for `.lua` files in your Zed `settings.json`:
+
+```jsonc
 {
-	// ...
-	"languages": {
-		// ...
-		"Luau": {
-			// ...
-			"formatter": {
-				"external": {
-					"command": "stylua",
-					"arguments": ["-"]
-				}
-			},
-			// ...
-		},
-		// ...
-	},
-	// ...
+  "file_types": {
+    "Luau": ["lua"]
+  }
+}
+```
+
+### How do I use a nightly version of luau-lsp?
+You need to install the nightly version manually. Afterwards, add it to your PATH and ensure
+`binary.ignore_system_version` is set to false, or set `binary.path` to the path of the nightly
+binary.
+
+### How do I use this with [Lune](https://github.com/lune-org/lune)?
+Follow the [Editor Setup guide](https://lune-org.github.io/docs/getting-started/4-editor-setup).
+The editor settings for Zed are as follows:
+
+```jsonc
+{
+  "lsp": {
+    "luau-lsp": {
+      "settings": {
+        "luau-lsp": {
+          "require": {
+            "mode": "relativeToFile",
+            "directoryAliases": {
+              "@lune/": "~/.lune/.typedefs/x.y.z/"
+            }
+          }
+        }
+      }
+    }
+  }
 }
 ```
