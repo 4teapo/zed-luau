@@ -50,7 +50,7 @@ this:
             // use instead of installing one itself.
             "ignore_system_version": false,
             // The path to the language server binary you want to force the extension to use.
-            "path": "",
+            "path": null,
             // Additional arguments to pass to the language server. If you want to set exactly which
             // arguments are passed, use `lsp.luau-lsp.binary.path` & `lsp.luau-lsp.binary.args` instead.
             "args": []
