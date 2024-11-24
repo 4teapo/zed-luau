@@ -1,6 +1,6 @@
 [package]
 name = "zed-luau"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 publish = false
 license = "MIT"
@@ -10,6 +10,6 @@ path = "src/luau.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-zed_extension_api = "0.1.0"
+zed_extension_api = "0.2.0"
 serde = { version = "1.0", default-features = false, features = ["derive"]}
 serde_path_to_error = "0.1"
