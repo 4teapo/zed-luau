@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Added outline support with annotations and special handling for table types.
+
+### Changed
+
+- Changed the grammar for Luau to [4teapo/tree-sitter-luau](https://github.com/4teapo/tree-sitter-luau)
+  for improved syntax highlighting.
+- Changed default script security level to plugin security.
+
+### Removed
+
+- Removed automatic closing for `<`/`>`.
+
+### Fixed
+
+- Fixed bracket pairs inside of comments automatically closing.
+
 ## [0.2.0] - 2024-10-26
 
 ### Added

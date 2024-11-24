@@ -52,7 +52,7 @@ impl Default for ExtRobloxSettings {
     fn default() -> Self {
         Self {
             enabled: false,
-            security_level: SecurityLevel::RobloxScript,
+            security_level: SecurityLevel::Plugin,
         }
     }
 }

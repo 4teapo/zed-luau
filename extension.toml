@@ -11,5 +11,5 @@ name = "Luau LSP"
 language = "Luau"
 
 [grammars.luau]
-repository = "https://github.com/tree-sitter-grammars/tree-sitter-luau"
-commit = "fbadc96272f718dba267628ba7b0e694c368cef3"
+repository = "https://github.com/4teapo/tree-sitter-luau"
+commit = "2d91bea94fb08ed1e0d942808291d477fbc13917"
