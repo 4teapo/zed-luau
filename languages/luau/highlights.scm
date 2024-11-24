@@ -1,109 +1,70 @@
-; Preproc
-(hash_bang_line) @keyword.directive
-
 ; Keywords
-"return" @keyword.return
 
 [
   "local"
-  "type"
-  "export"
+  "while"
+  "repeat"
+  "for"
+  "in"
+  "if"
+  "elseif"
+  "else"
+  "then"
+  "do"
+  "function"
+  "end"
+  "return"
+  (continue_statement)
+  (break_statement)
 ] @keyword
 
-(do_statement
+(type_alias_declaration
   [
-    "do"
-    "end"
+    "export"
+    "type"
   ] @keyword)
 
-(while_statement
+(type_function_declaration
   [
-    "while"
-    "do"
-    "end"
-  ] @keyword.repeat)
+    "export"
+    "type"
+  ] @keyword)
 
-(repeat_statement
-  [
-    "repeat"
-    "until"
-  ] @keyword.repeat)
+; Punctuations
 
 [
-  (break_statement)
-  (continue_statement)
-] @keyword.repeat
+    "("
+    ")"
+    "["
+    "]"
+    "{"
+    "}"
+    "<"
+    ">"
+] @punctuation.bracket
 
-(if_statement
-  [
-    "if"
-    "elseif"
-    "else"
-    "then"
-    "end"
-  ] @keyword.conditional)
-
-(if_expression
-  [
-    "if"
-    "then"
-  ] @keyword.conditional)
-
-(elseif_statement
-  [
-    "elseif"
-    "then"
-    "end"
-  ] @keyword.conditional)
-
-(elseif_clause
-  [
-    "elseif"
-    "then"
-  ] @keyword.conditional)
-
-(else_statement
-  [
-    "else"
-    "end"
-  ] @keyword.conditional)
-
-(else_clause
-  "else" @keyword.conditional)
-
-(for_statement
-  [
-    "for"
-    "do"
-    "end"
-  ] @keyword.repeat)
-
-(function_declaration
-  [
-    "function"
-    "end"
-  ] @keyword.function)
-
-(function_definition
-  [
-    "function"
-    "end"
-  ] @keyword.function)
+[
+    ";"
+    ":"
+    ","
+    "."
+    "->"
+] @punctuation.delimiter
 
 ; Operators
-[
-  "and"
-  "not"
-  "or"
-  "in"
-  "typeof"
-] @keyword.operator
+
+(binary_expression
+  [
+    "<"
+    ">"
+  ] @operator)
 
 [
   "+"
   "-"
   "*"
   "/"
+  "//"
   "%"
   "^"
   "#"
@@ -111,75 +72,40 @@
   "~="
   "<="
   ">="
-  "<"
-  ">"
-  "="
   "&"
   "|"
-  "?"
-  "//"
+  "::"
   ".."
+  "="
   "+="
   "-="
   "*="
   "/="
+  "//="
   "%="
   "^="
   "..="
-  "//="
+  "not"
+  "and"
+  "or"
+  "?"
 ] @operator
 
 ; Variables
+
 (identifier) @variable
 
-; Types
-(type
-  (identifier) @type)
+(type_binding
+  (identifier) @variable.parameter)
 
-(type
-  (generic_type
-    (identifier) @type))
+((identifier) @variable.special
+  (#any-of? @variable.special "math" "table" "string" "coroutine" "bit32" "utf8" "os" "debug"
+    "buffer" "vector"))
 
-(builtin_type) @type.builtin
-
-((identifier) @type
-  (#lua-match? @type "^[A-Z]"))
-
-; Typedefs
-(type_definition
-  "type"
-  .
-  (type) @type.definition
-  "=")
-
-; Constants
-((identifier) @constant
-  (#lua-match? @constant "^[A-Z][A-Z_0-9]+$"))
-
-; Builtins
-((identifier) @constant.builtin
-  (#eq? @constant.builtin "_VERSION"))
-
-((identifier) @variable.builtin
-  (#eq? @variable.builtin "self"))
-
-"..." @variable.builtin
-
-((identifier) @module.builtin
-  (#any-of? @module.builtin "_G" "debug" "io" "jit" "math" "os" "package" "string" "table" "utf8"))
-
-((identifier) @keyword.coroutine
-  (#eq? @keyword.coroutine "coroutine"))
+((identifier) @variable.special
+  (#match? @variable.special "^_[A-Z]*$"))
 
 ; Tables
-(field
-  name: (identifier) @variable.member)
-
-(dot_index_expression
-  field: (identifier) @variable.member)
-
-(object_type
-  (identifier) @variable.member)
 
 (table_constructor
   [
@@ -187,129 +113,167 @@
     "}"
   ] @constructor)
 
-; Functions
-(parameter
-  .
-  (identifier) @variable.parameter)
+(field_identifier) @property
 
-(function_type
-  (identifier) @variable.parameter)
+; Constants
 
-(function_call
-  name: (identifier) @function.call)
+(nil) @constant
 
-(function_declaration
-  name: (identifier) @function)
+((identifier) @constant
+  (#eq? @constant "_VERSION"))
 
-(function_call
-  name:
-    (dot_index_expression
-      field: (identifier) @function.call))
+(
+  [
+    (identifier)
+    (field_identifier)
+  ] @constant
+  (#match? @constant "^[A-Z][A-Z][A-Z_0-9]*$"))
 
-(function_declaration
-  name:
-    (dot_index_expression
-      field: (identifier) @function))
-
-(method_index_expression
-  method: (identifier) @function.method.call)
-
-(function_call
-  (identifier) @function.builtin
-  ; format-ignore
-  (#any-of? @function.builtin
-    ; built-in functions in Lua 5.1
-    "assert" "collectgarbage" "dofile" "error" "getfenv" "getmetatable" "ipairs"
-    "load" "loadfile" "loadstring" "module" "next" "pairs" "pcall" "print"
-    "rawequal" "rawget" "rawlen" "rawset" "require" "select" "setfenv" "setmetatable"
-    "tonumber" "tostring" "type" "unpack" "xpcall" "typeof"
-    "__add" "__band" "__bnot" "__bor" "__bxor" "__call" "__concat" "__div" "__eq" "__gc"
-    "__idiv" "__index" "__le" "__len" "__lt" "__metatable" "__mod" "__mul" "__name" "__newindex"
-    "__pairs" "__pow" "__shl" "__shr" "__sub" "__tostring" "__unm"))
 
 ; Literals
+
 (number) @number
 
-(string) @string
-
-(nil) @constant.builtin
-
-(vararg_expression) @variable.builtin
-
 [
-  (false)
   (true)
+  (false)
 ] @boolean
 
-; Punctuations
-[
-  ";"
-  ":"
-  "::"
-  ","
-  "."
-  "->"
-] @punctuation.delimiter
+(string) @string
+(escape_sequence) @string.escape
 
-[
-  "("
-  ")"
-  "["
-  "]"
-  "{"
-  "}"
-] @punctuation.bracket
-
-(variable_list
-  attribute:
-    (attribute
-      ([
-        "<"
-        ">"
-      ] @punctuation.bracket
-        (identifier) @attribute)))
-
-(generic_type
+(string_interpolation
   [
-    "<"
-    ">"
-  ] @punctuation.bracket)
+    "{"
+    "}"
+  ] @punctuation.special)
 
-(generic_type_list
+(interpolated_string
   [
-    "<"
-    ">"
-  ] @punctuation.bracket)
+    "`"
+  ] @string)
+
+(string_content) @string
+
+; Types
+
+(table_property_attribute) @attribute
+
+(typeof_type
+  "typeof" @function.builtin)
+
+(type_identifier) @type
+
+; Functions
+
+(function_declaration
+  name: [
+    (identifier) @function
+    (dot_index_expression
+      field: (field_identifier) @function)
+  ])
+
+(method_index_expression
+  method: (field_identifier) @function)
+
+(local_function_declaration
+    name: (identifier) @function)
+
+(parameters
+  [
+    (binding
+      name: (identifier) @variable.parameter)
+    (variadic_parameter "..." @variable.parameter)])
+
+((identifier) @variable.special
+  (#eq? @variable.special "self"))
+
+(function_call
+  name: [
+    (identifier) @function
+    (dot_index_expression
+      field: (field_identifier) @function)
+  ])
+
+(parameter_attribute
+   name: (identifier) @attribute)
+
+(attribute
+  [
+    "@" @attribute
+    name: (identifier) @attribute
+  ])
+
+; require(""), (require)("")
+(function_call
+  name: [
+    (identifier) @function.builtin
+    (parenthesized_expression
+      (identifier) @function.builtin)
+  ]
+  (#any-of? @function.builtin
+    "require" "assert" "error" "gcinfo" "getfenv" "getmetatable" "next"
+    "newproxy" "print" "rawequal" "rawget" "select" "setfenv" "setmetatable"
+    "tonumber" "tostring" "type" "typeof" "ipairs" "pairs" "pcall" "xpcall"
+    "unpack"))
+
+; tbl.__index, tbl:__index
+(function_call
+  name: [
+    (dot_index_expression
+      field: (field_identifier) @function.builtin)
+    (method_index_expression
+      method: (field_identifier) @function.builtin)
+  ]
+  (#any-of? @function.builtin
+    "__index" "__newindex" "__call" "__concat" "__unm" "__add" "__sub" "__mul"
+    "__div" "__idiv" "__mod" "__pow" "__tostring" "__metatable" "__eq" "__lt"
+    "__le" "__mode" "__gc" "__len" "__iter"))
+
+(function_call
+  name: [
+    (dot_index_expression
+      table: (identifier) @variable.special
+      field: (field_identifier) @function.builtin)
+    (method_index_expression
+      table: (identifier) @variable.special
+      method: (field_identifier) @function.builtin)
+  ]
+  (#any-of? @variable.special "math" "table" "string" "coroutine" "bit32" "utf8" "os" "debug"
+    "buffer" "vector"))
+
+; string.match
+(function_call
+  name: (dot_index_expression
+    table: (identifier) @variable.special
+    (#eq? @variable.special "string")
+    field: (field_identifier) @function.builtin
+    (#any-of? @function.builtin "find" "match" "gmatch" "gsub"))
+  arguments: (arguments
+    (string)
+    (string
+      content: (_) @string.regex) @string.regex))
+
+; ("string"):match
+(function_call
+  name: (method_index_expression
+    method: (field_identifier) @function.builtin
+    (#any-of? @function.builtin "find" "match" "gmatch" "gsub"))
+  arguments: (arguments
+    (string
+      content: (_) @string.regex) @string.regex))
+
+; TODO: Special highlight for type methods and the `types` library in type functions when it's possible
+; to query descendants.
 
 ; Comments
-(comment) @comment @spell
 
-((comment) @comment.documentation
-  (#lua-match? @comment.documentation "^[-][-][-]"))
+(comment) @comment
 
-((comment) @comment.documentation
-  (#lua-match? @comment.documentation "^[-][-](%s?)@"))
+(hash_bang_line) @preproc
 
-; string.match("123", "%d+")
-(function_call
-  (dot_index_expression
-    field: (identifier) @_method
-    (#any-of? @_method "find" "format" "match" "gmatch" "gsub"))
-  arguments:
-    (arguments
-      .
-      (_)
-      .
-      (string
-        content: _ @string.regexp)))
+((comment) @comment.doc
+  (#match? @comment.doc "^[-][-][-]"))
 
-; ("123"):match("%d+")
-(function_call
-  (method_index_expression
-    method: (identifier) @_method
-    (#any-of? @_method "find" "format" "match" "gmatch" "gsub"))
-  arguments:
-    (arguments
-      .
-      (string
-        content: _ @string.regexp)))
+((comment) @comment.doc
+  (#match? @comment.doc "^[-][-](%s?)@"))
