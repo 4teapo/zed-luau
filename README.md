@@ -2,7 +2,7 @@
 A [Zed](https://zed.dev/) extension that adds support for the [Luau programming language](https://luau.org/).
 
 ## Features
-- [x] Syntax highlighting (partially unsound due to bugs in the [official Tree-sitter grammar](https://github.com/tree-sitter-grammars/tree-sitter-luau))
+- [x] Syntax highlighting
 - [x] Non-optional luau-lsp features (excluding end autocomplete. See [#19788](https://github.com/zed-industries/zed/issues/19788))
 - [x] Roblox documentation and definitions
 - [x] Managing documentation and definitions
@@ -107,7 +107,7 @@ add the following to your Zed `settings.json`:
       "formatter": {
         "external": {
           "command": "stylua",
-          "arguments": ["-"]
+          "arguments": ["--stdin-filepath", "{buffer_path}", "-"]
         }
       }
     }
