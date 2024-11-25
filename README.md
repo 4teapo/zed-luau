@@ -33,7 +33,7 @@ this:
             "enabled": false,
             // The security level of scripts.
             // Must be "roblox_script", "local_user", "plugin" or "none".
-            "security_level": "roblox_script"
+            "security_level": "plugin"
           },
           "fflags": {
             // Whether or not all boolean, non-experimental fflags should be
@@ -117,7 +117,7 @@ add the following to your Zed `settings.json`:
 
 ## Troubleshooting
 Syntax highlighting issues stem from problems in the syntax tree, which can be viewed with `debug: open syntax tree view`.
-Report syntax tree issues to the [tree-sitter-grammars/tree-sitter-luau](https://github.com/tree-sitter-grammars/tree-sitter-luau).
+Report syntax tree issues to the [4teapo/tree-sitter-luau](https://github.com/4teapo/tree-sitter-luau).
 
 If zed-luau emitted an error, you will find it in `zed: open log`, and you can view the output of `luau-lsp`
 as well as communication between the extension and the language server with `zed: open language server logs`.
