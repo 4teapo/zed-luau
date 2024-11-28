@@ -3,17 +3,21 @@ A [Zed](https://zed.dev/) extension that adds support for the [Luau programming 
 
 ## Features
 - [x] Syntax highlighting
+- [x] Outline support
+- [x] Runnables
 - [x] Non-optional luau-lsp features (excluding end autocomplete. See [#19788](https://github.com/zed-industries/zed/issues/19788))
 - [x] Roblox documentation and definitions
 - [x] Managing documentation and definitions
 - [x] Managing FFlags
-- [x] Runnables
-- [ ] Luau LSP plugin support (requires additions to Zed's extension API)
-- [ ] Bytecode generation (requires additions to Zed's extension API)
+- [ ] Luau LSP plugin support (requires additions to Zed's extension API. See [#20042](https://github.com/zed-industries/zed/issues/20042) & [#20040](https://github.com/zed-industries/zed/issues/20040))
+- [ ] Bytecode generation (requires additions to Zed's extension API. See [#20042](https://github.com/zed-industries/zed/issues/20042))
 
 ## Installation
 To install zed-luau, you can use the extension menu in Zed, or clone the repository and install it
 as a dev extension with `zed: install dev extension`.
+
+## Support
+The latest version of zed-luau supports Zed 0.161.1 and up.
 
 ## Configuration
 This extension can be configured via your Zed `settings.json`. The default configuration looks like
