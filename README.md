@@ -111,7 +111,7 @@ add the following to your Zed `settings.json`:
       "formatter": {
         "external": {
           "command": "stylua",
-          "arguments": ["--stdin-filepath", "{buffer_path}", "-"]
+          "arguments": ["-"]
         }
       }
     }
