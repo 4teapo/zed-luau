@@ -121,7 +121,7 @@ add the following to your Zed `settings.json`:
 
 ## Troubleshooting
 Syntax highlighting issues stem from problems in the syntax tree, which can be viewed with `debug: open syntax tree view`.
-Report syntax tree issues to the [4teapo/tree-sitter-luau](https://github.com/4teapo/tree-sitter-luau).
+Report syntax tree issues to [4teapo/tree-sitter-luau](https://github.com/4teapo/tree-sitter-luau).
 
 If zed-luau emitted an error, you will find it in `zed: open log`, and you can view the output of `luau-lsp`
 as well as communication between the extension and the language server with `zed: open language server logs`.
@@ -137,23 +137,40 @@ where `x` is `it`, `describe`, or `test`, as runnables with the tag `luau-jest-t
 
 ## FAQ
 ### How do I use [Rojo](https://rojo.space/) in Zed?
-You can add something along the lines of the following to your [Zed tasks](https://zed.dev/docs/tasks):
+You can use [Zed tasks](https://zed.dev/docs/tasks) to run Rojo commands. For example:
 
 ```json
 [
   {
-    "label": "Rojo autogenerate sourcemap",
-    "command": "rojo sourcemap --watch --output sourcemap.json --include-non-scripts",
+    "label": "Serve and autogenerate sourcemap",
+    "command": "rojo serve & rojo sourcemap --watch --include-non-scripts"
   },
   {
-    "label": "Rojo serve default.project.json",
-    "command": "rojo serve default.project.json",
-  },
-  {
-    "label": "Rojo build out.rbxl",
-    "command": "rojo build --output out.rbxl"
+    "label": "Build and open",
+    "command": "rojo build --output a.rbxl; open a.rbxl"
   }
 ]
+```
+
+To get autocompletion in `.project.json` files, you can add the following to your Zed `settings.json`:
+
+```jsonc
+{
+  "lsp": {
+    "json-language-server": {
+      "settings": {
+        "json": {
+          "schemas": [
+            {
+              "fileMatch": ["*.project.json"],
+              "url": "https://raw.githubusercontent.com/rojo-rbx/vscode-rojo/refs/heads/master/schemas/project.template.schema.json"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
 ```
 
 ### How do I use zed-luau for `.lua` files as well?

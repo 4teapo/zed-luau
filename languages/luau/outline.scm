@@ -54,3 +54,51 @@
   (return_statement
     "return" @name
     (expression_list)? @context) @item)
+
+(declare_global_declaration
+  "declare" @context
+  name: (identifier) @name) @item
+
+(declare_global_declaration
+  type: (table_type
+    (table_property_list
+      [
+        (table_property
+          attribute: (table_property_attribute)? @context
+          left: (field_identifier) @name)?
+        (table_indexer
+          attribute: (table_property_attribute)? @context
+          "[" @context
+          (_) @name
+          "]" @context)?
+      ] @item)))
+
+(declare_global_function_declaration
+  "declare" @context
+  "function" @context
+  name: (identifier) @name
+  (parameters
+    "(" @context
+    ")" @context)) @item
+
+(declare_class_declaration
+  "declare" @context
+  "class" @context
+  name: (identifier) @name
+  "extends"? @context
+  superclass: (identifier)? @name) @item
+
+(class_property
+  left: (field_identifier) @name) @item
+
+(class_indexer
+  "[" @context
+  (_) @name
+  "]" @context) @item
+
+(class_function
+  "function" @context
+  name: (identifier) @name
+  (parameters
+    "(" @context
+    ")" @context)) @item

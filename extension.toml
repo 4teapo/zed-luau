@@ -1,6 +1,6 @@
 id = "luau"
 name = "Luau"
-version = "0.2.1"
+version = "0.2.2"
 schema_version = 1
 authors = ["teapo <4teapo@gmail.com>"]
 description = "Luau support."
@@ -12,4 +12,4 @@ language = "Luau"
 
 [grammars.luau]
 repository = "https://github.com/4teapo/tree-sitter-luau"
-commit = "2d91bea94fb08ed1e0d942808291d477fbc13917"
+commit = "cd500d82bb278092f3b42dfdb4965eca0fe3b45e"
