@@ -77,6 +77,8 @@ struct ExtFFlagsSettings {
     #[serde(default)]
     enable_by_default: bool,
     #[serde(default)]
+    enable_new_solver: bool,
+    #[serde(default)]
     sync: bool,
     #[serde(default, rename = "override")]
     overrides: HashMap<String, String>,
@@ -86,6 +88,7 @@ impl Default for ExtFFlagsSettings {
     fn default() -> Self {
         Self {
             enable_by_default: false,
+            enable_new_solver: false,
             sync: true,
             overrides: Default::default(),
         }
@@ -356,6 +359,18 @@ impl zed::Extension for LuauExtension {
                     return Err("failed to apply fflag overrides: all overrides must have a non-empty name and value.".into());
                 }
                 fflags.insert(name.clone(), value.to_string());
+            }
+
+            if settings.fflags.enable_new_solver {
+                fflags.insert("LuauSolverV2".to_string(), "true".to_string());
+                fflags.insert(
+                    "LuauNewSolverPopulateTableLocations".to_string(),
+                    "true".to_string(),
+                );
+                fflags.insert(
+                    "LuauNewSolverPrePopulateClasses".to_string(),
+                    "true".to_string(),
+                );
             }
 
             for (name, value) in fflags.iter() {

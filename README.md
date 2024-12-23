@@ -43,6 +43,8 @@ this:
             // Whether or not all boolean, non-experimental fflags should be
             // enabled by default.
             "enable_by_default": false,
+            // Whether or not the new Luau type solver should be enabled.
+            "enable_new_solver": false,
             // Whether or not FFlag values should be synced with Roblox's
             // default FFlag values.
             "sync": true,
