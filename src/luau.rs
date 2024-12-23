@@ -244,7 +244,7 @@ impl LuauExtension {
 
 impl zed::Extension for LuauExtension {
     fn new() -> Self {
-        // Try deleting files for definitions, docs & fflags to make sure they are downladed again
+        // Try deleting files for definitions, docs & fflags to make sure they are downloaded again
         // later, keeping them up to date.
         fs::remove_file(FFLAG_FILE_NAME).ok();
         fs::remove_file(roblox::API_DOCS_FILE_NAME).ok();
