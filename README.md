@@ -145,7 +145,7 @@ You can use [Zed tasks](https://zed.dev/docs/tasks) to run Rojo commands. For ex
 [
   {
     "label": "Serve and autogenerate sourcemap",
-    "command": "rojo serve & rojo sourcemap --watch --include-non-scripts"
+    "command": "rojo serve & rojo sourcemap --watch --include-non-scripts --output sourcemap.json"
   },
   {
     "label": "Build and open",
