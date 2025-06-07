@@ -78,8 +78,8 @@ this:
 }
 ```
 
-The configuration options for `settings.luau-lsp` can be viewed
-[here](https://github.com/JohnnyMorganz/luau-lsp/blob/ae63ce5e10bc5d42122669fc20606fc5ec2fe54d/src/include/LSP/ClientConfiguration.hpp#L220).
+The configuration options for `settings.luau-lsp` are shown in the `ClientConfiguration` structure
+[here](https://github.com/JohnnyMorganz/luau-lsp/blob/main/src/include/LSP/ClientConfiguration.hpp).
 For example, to enable inlay hints, you can add the following to your Zed `settings.json`:
 
 ```jsonc
