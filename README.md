@@ -9,7 +9,7 @@ A [Zed](https://zed.dev/) extension that adds support for the [Luau programming 
 - [x] Roblox documentation and definitions
 - [x] Managing documentation and definitions
 - [x] Managing FFlags
-- [ ] Luau LSP plugin support (requires additions to Zed's extension API. See [#20042](https://github.com/zed-industries/zed/issues/20042) & [#20040](https://github.com/zed-industries/zed/issues/20040))
+- [x] Luau LSP plugin support
 - [ ] Bytecode generation (requires additions to Zed's extension API. See [#20042](https://github.com/zed-industries/zed/issues/20042))
 
 ## Installation
@@ -60,6 +60,18 @@ this:
             // Additional arguments to pass to the language server. If you want to set exactly which
             // arguments are passed, use `lsp.luau-lsp.binary.path` & `lsp.luau-lsp.binary.args` instead.
             "args": []
+          },
+          "plugin": {
+            // Whether or not Roblox Studio Plugin support should be enabled. If false, the
+            // extension will use the regular language server binary only, whereas if true, it will
+            // use, thereby starting an HTTP server, and potentially install 4teapo/luau-lsp-proxy
+            // as well. This is necessary for plugin support to be possible.
+            "enabled": false,
+            // The port number to connect the Roblox Studio Plugin to.
+            "port": 3667,
+            // The path to the luau-lsp-proxy binary you want to force the extension to use. If
+            // null, the extension tries to install it itself.
+            "proxy_path": null
           },
           // Additional definition files to pass to the language server.
           // On Windows, the paths are interpreted as absolute if and only if they contain ':'.

@@ -13,27 +13,31 @@ const FFLAG_URL: &str =
 const FFLAG_PREFIXES: &[&str] = &["FFlag", "FInt", "DFFlag", "DFInt"];
 const FFLAG_FILE_NAME: &str = "fflags.json";
 const LUAU_LSP_BINARY_DIR_NAME: &str = "luau-lsp-binaries";
+const PROXY_BINARY_DIR_NAME: &str = "proxy-binaries";
 
 #[derive(Debug, Deserialize)]
-struct ExtSettings {
+struct Settings {
     #[serde(default)]
-    roblox: ExtRobloxSettings,
+    roblox: RobloxSettings,
     #[serde(default)]
-    fflags: ExtFFlagsSettings,
+    fflags: FFlagsSettings,
     #[serde(default)]
-    binary: ExtBinarySettings,
+    binary: BinarySettings,
+    #[serde(default)]
+    plugin: PluginSettings,
     #[serde(default)]
     definitions: Vec<String>,
     #[serde(default)]
     documentation: Vec<String>,
 }
 
-impl Default for ExtSettings {
+impl Default for Settings {
     fn default() -> Self {
-        ExtSettings {
+        Settings {
             roblox: Default::default(),
             fflags: Default::default(),
             binary: Default::default(),
+            plugin: Default::default(),
             definitions: Default::default(),
             documentation: Default::default(),
         }
@@ -41,14 +45,14 @@ impl Default for ExtSettings {
 }
 
 #[derive(Debug, Deserialize)]
-struct ExtRobloxSettings {
+struct RobloxSettings {
     #[serde(default)]
     enabled: bool,
     #[serde(default)]
     security_level: SecurityLevel,
 }
 
-impl Default for ExtRobloxSettings {
+impl Default for RobloxSettings {
     fn default() -> Self {
         Self {
             enabled: false,
@@ -73,7 +77,7 @@ impl Default for SecurityLevel {
 }
 
 #[derive(Debug, Deserialize)]
-struct ExtFFlagsSettings {
+struct FFlagsSettings {
     #[serde(default)]
     enable_by_default: bool,
     #[serde(default)]
@@ -84,7 +88,7 @@ struct ExtFFlagsSettings {
     overrides: HashMap<String, String>,
 }
 
-impl Default for ExtFFlagsSettings {
+impl Default for FFlagsSettings {
     fn default() -> Self {
         Self {
             enable_by_default: false,
@@ -96,7 +100,7 @@ impl Default for ExtFFlagsSettings {
 }
 
 #[derive(Debug, Deserialize)]
-struct ExtBinarySettings {
+struct BinarySettings {
     #[serde(default)]
     ignore_system_version: bool,
     #[serde(default)]
@@ -105,7 +109,7 @@ struct ExtBinarySettings {
     args: Vec<String>,
 }
 
-impl Default for ExtBinarySettings {
+impl Default for BinarySettings {
     fn default() -> Self {
         Self {
             ignore_system_version: false,
@@ -115,8 +119,29 @@ impl Default for ExtBinarySettings {
     }
 }
 
+#[derive(Debug, Deserialize)]
+struct PluginSettings {
+    #[serde(default)]
+    enabled: bool,
+    #[serde(default)]
+    port: u16,
+    #[serde(default)]
+    proxy_path: Option<String>,
+}
+
+impl Default for PluginSettings {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            port: 3667,
+            proxy_path: None,
+        }
+    }
+}
+
 struct LuauExtension {
     cached_binary_path: Option<String>,
+    cached_proxy_path: Option<String>,
 }
 
 fn is_file(path: &str) -> bool {
@@ -127,9 +152,9 @@ fn is_dir(path: &str) -> bool {
     fs::metadata(path).map_or(false, |stat| stat.is_dir())
 }
 
-fn get_ext_settings(settings_val: Option<serde_json::Value>) -> Result<ExtSettings> {
+fn get_ext_settings(settings_val: Option<serde_json::Value>) -> Result<Settings> {
     let Some(mut settings_val) = settings_val else {
-        return Ok(ExtSettings::default());
+        return Ok(Settings::default());
     };
 
     let Some(settings) = settings_val.as_object_mut() else {
@@ -137,7 +162,7 @@ fn get_ext_settings(settings_val: Option<serde_json::Value>) -> Result<ExtSettin
     };
 
     let Some(ext_settings_val) = settings.remove("ext") else {
-        return Ok(ExtSettings::default());
+        return Ok(Settings::default());
     };
 
     serde_path_to_error::deserialize(ext_settings_val).map_err(|e| e.to_string())
@@ -158,7 +183,7 @@ impl LuauExtension {
         &mut self,
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
-        settings: &ExtSettings,
+        settings: &Settings,
     ) -> Result<String> {
         if let Some(path) = &settings.binary.path {
             return Ok(path.clone());
@@ -243,6 +268,92 @@ impl LuauExtension {
 
         Ok(binary_path)
     }
+
+    fn language_server_proxy_path(
+        &mut self,
+        language_server_id: &LanguageServerId,
+        settings: &Settings,
+    ) -> Result<String> {
+        if let Some(path) = &settings.plugin.proxy_path {
+            return Ok(path.clone());
+        }
+
+        zed::set_language_server_installation_status(
+            &language_server_id,
+            &zed::LanguageServerInstallationStatus::CheckingForUpdate,
+        );
+        let release = zed::latest_github_release(
+            "4teapo/luau-lsp-proxy",
+            zed::GithubReleaseOptions {
+                require_assets: true,
+                pre_release: false,
+            },
+        )?;
+
+        let (platform, arch) = zed::current_platform();
+
+        let asset_name = format!(
+            "luau-lsp-proxy-{version}-{os}-{arch}.zip",
+            version = {
+                let mut chars = release.version.chars();
+                chars.next();
+                chars.as_str()
+            },
+            os = match platform {
+                zed::Os::Mac => "macos",
+                zed::Os::Windows => "windows",
+                zed::Os::Linux => "linux",
+            },
+            arch = match arch {
+                zed::Architecture::Aarch64 => "aarch64",
+                _ => "x86_64",
+            },
+        );
+
+        let asset = release
+            .assets
+            .iter()
+            .find(|asset| asset.name == asset_name)
+            .ok_or_else(|| format!("no asset found matching {:?}", asset_name))?;
+
+        let dir_name = format!("luau-lsp-proxy-{}", release.version);
+        let version_dir = format!("{PROXY_BINARY_DIR_NAME}/{dir_name}");
+        let binary_path = format!("{version_dir}/luau-lsp-proxy");
+
+        if !is_dir(PROXY_BINARY_DIR_NAME) {
+            fs::create_dir(PROXY_BINARY_DIR_NAME)
+                .map_err(|e| format!("failed to create directory for the proxy binary: {e}"))?;
+        }
+
+        if !is_file(&binary_path) {
+            zed::set_language_server_installation_status(
+                &language_server_id,
+                &zed::LanguageServerInstallationStatus::Downloading,
+            );
+
+            zed::download_file(
+                &asset.download_url,
+                &version_dir,
+                zed::DownloadedFileType::Zip,
+            )
+            .map_err(|e| format!("failed to download file: {e}"))?;
+
+            zed::make_file_executable(&binary_path)?;
+
+            let entries = fs::read_dir(PROXY_BINARY_DIR_NAME)
+                .map_err(|e| format!("failed to list working directory {e}"))?;
+            for entry in entries {
+                let entry = entry.map_err(|e| format!("failed to load directory entry {e}"))?;
+                if entry.file_name().to_str() != Some(&dir_name) {
+                    fs::remove_dir_all(&entry.path()).ok();
+                }
+            }
+        }
+
+        self.cached_proxy_path = Some(binary_path.clone());
+
+        Ok(binary_path)
+    }
 }
 
 impl zed::Extension for LuauExtension {
@@ -269,6 +380,7 @@ impl zed::Extension for LuauExtension {
         .ok();
         Self {
             cached_binary_path: None,
+            cached_proxy_path: None,
         }
     }
 
@@ -284,7 +396,15 @@ impl zed::Extension for LuauExtension {
 
         let settings = get_ext_settings(lsp_settings.settings)?;
 
-        let mut args = vec!["lsp".into()];
+        let binary_path =
+            self.language_server_binary_path(language_server_id, worktree, &settings)?;
+
+        let mut args: Vec<String> = Vec::new();
+        if settings.plugin.enabled {
+            args.push(settings.plugin.port.to_string());
+            args.push(binary_path.clone().into());
+        }
+        args.push("lsp".into());
 
         fn is_path_absolute(path: &str) -> bool {
             let (platform, _) = zed::current_platform();
@@ -422,10 +542,14 @@ impl zed::Extension for LuauExtension {
             args.push(arg.into());
         }
 
-        let binary_path =
-            self.language_server_binary_path(language_server_id, worktree, &settings)?;
+        let command = if settings.plugin.enabled {
+            self.language_server_proxy_path(language_server_id, &settings)?
+        } else {
+            binary_path.clone()
+        };
+
         Ok(zed::Command {
-            command: binary_path,
+            command,
             args,
             env: Default::default(),
         })
