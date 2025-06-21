@@ -152,7 +152,7 @@ fn is_dir(path: &str) -> bool {
     fs::metadata(path).map_or(false, |stat| stat.is_dir())
 }
 
-fn get_ext_settings(settings_val: Option<serde_json::Value>) -> Result<Settings> {
+fn get_extension_settings(settings_val: Option<serde_json::Value>) -> Result<Settings> {
     let Some(mut settings_val) = settings_val else {
         return Ok(Settings::default());
     };
@@ -161,11 +161,9 @@ fn get_ext_settings(settings_val: Option<serde_json::Value>) -> Result<Settings>
         return Err("invalid luau-lsp settings: `settings` must be an object, but isn't.".into());
     };
 
-    let Some(ext_settings_val) = settings.remove("ext") else {
-        return Ok(Settings::default());
-    };
+    let value = settings.remove("ext").unwrap_or(settings_val);
 
-    serde_path_to_error::deserialize(ext_settings_val).map_err(|e| e.to_string())
+    serde_path_to_error::deserialize(value).map_err(|e| e.to_string())
 }
 
 fn download_fflags() -> Result<()> {
@@ -394,7 +392,7 @@ impl zed::Extension for LuauExtension {
             Err(e) => return Err(e),
         };
 
-        let settings = get_ext_settings(lsp_settings.settings)?;
+        let settings = get_extension_settings(lsp_settings.settings)?;
 
         let binary_path =
             self.language_server_binary_path(language_server_id, worktree, &settings)?;

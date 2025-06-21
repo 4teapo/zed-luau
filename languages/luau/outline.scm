@@ -50,11 +50,6 @@
     "(" @context
     ")" @context)) @item
 
-(chunk
-  (return_statement
-    "return" @name
-    (expression_list)? @context) @item)
-
 (declare_global_declaration
   "declare" @context
   name: (identifier) @name) @item
