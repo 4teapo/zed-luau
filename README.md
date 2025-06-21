@@ -101,7 +101,7 @@ Report syntax tree issues to [4teapo/tree-sitter-luau](https://github.com/4teapo
 If zed-luau emitted an error, you will find it in `zed: open log`, and you can view the output of `luau-lsp`
 as well as communication between the extension and the language server with `zed: open language server logs`.
 
-### Runnables
+## Runnables
 zed-luau marks expressions of the form
 ```luau
 x("", ...)
