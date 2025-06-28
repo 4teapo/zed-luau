@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::fs;
 use zed::lsp::CompletionKind;
 use zed::settings::LspSettings;
-use zed::{serde_json, CodeLabel, CodeLabelSpan, LanguageServerId};
+use zed::{CodeLabel, CodeLabelSpan, LanguageServerId, serde_json};
 use zed_extension_api::{self as zed, Result};
 
 mod roblox;
@@ -16,18 +16,13 @@ const LUAU_LSP_BINARY_DIR_NAME: &str = "luau-lsp-binaries";
 const PROXY_BINARY_DIR_NAME: &str = "proxy-binaries";
 
 #[derive(Debug, Deserialize)]
+#[serde(default)]
 struct Settings {
-    #[serde(default)]
     roblox: RobloxSettings,
-    #[serde(default)]
     fflags: FFlagsSettings,
-    #[serde(default)]
     binary: BinarySettings,
-    #[serde(default)]
     plugin: PluginSettings,
-    #[serde(default)]
     definitions: Vec<String>,
-    #[serde(default)]
     documentation: Vec<String>,
 }
 
@@ -45,11 +40,12 @@ impl Default for Settings {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(default)]
 struct RobloxSettings {
-    #[serde(default)]
     enabled: bool,
-    #[serde(default)]
     security_level: SecurityLevel,
+    download_api_documentation: bool,
+    download_definitions: bool,
 }
 
 impl Default for RobloxSettings {
@@ -57,6 +53,8 @@ impl Default for RobloxSettings {
         Self {
             enabled: false,
             security_level: SecurityLevel::Plugin,
+            download_api_documentation: true,
+            download_definitions: true,
         }
     }
 }
@@ -70,21 +68,13 @@ enum SecurityLevel {
     None,
 }
 
-impl Default for SecurityLevel {
-    fn default() -> Self {
-        SecurityLevel::RobloxScript
-    }
-}
-
 #[derive(Debug, Deserialize)]
+#[serde(default)]
 struct FFlagsSettings {
-    #[serde(default)]
     enable_by_default: bool,
-    #[serde(default)]
     enable_new_solver: bool,
-    #[serde(default)]
     sync: bool,
-    #[serde(default, rename = "override")]
+    #[serde(rename = "override")]
     overrides: HashMap<String, String>,
 }
 
@@ -100,12 +90,10 @@ impl Default for FFlagsSettings {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(default)]
 struct BinarySettings {
-    #[serde(default)]
     ignore_system_version: bool,
-    #[serde(default)]
     path: Option<String>,
-    #[serde(default)]
     args: Vec<String>,
 }
 
@@ -120,12 +108,10 @@ impl Default for BinarySettings {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(default)]
 struct PluginSettings {
-    #[serde(default)]
     enabled: bool,
-    #[serde(default)]
     port: u16,
-    #[serde(default)]
     proxy_path: Option<String>,
 }
 
@@ -412,28 +398,6 @@ impl zed::Extension for LuauExtension {
             }
         }
 
-        // Handle documentation and definition settings.
-        {
-            fn get_prefix<'a>(path: &str, proj_root_str: &'a str) -> &'a str {
-                match is_path_absolute(path) {
-                    true => "",
-                    false => proj_root_str,
-                }
-            }
-
-            let proj_root_str = &format!("{}/", worktree.root_path());
-
-            for def in &settings.definitions {
-                let prefix = get_prefix(&def, &proj_root_str);
-                args.push(format!("--definitions={prefix}{def}").into());
-            }
-
-            for doc in &settings.documentation {
-                let prefix = get_prefix(&doc, &proj_root_str);
-                args.push(format!("--docs={prefix}{doc}").into());
-            }
-        }
-
         // Handle fflag settings.
         {
             if !settings.fflags.enable_by_default {
@@ -497,43 +461,73 @@ impl zed::Extension for LuauExtension {
         }
 
         if settings.roblox.enabled {
-            if !is_file(roblox::API_DOCS_FILE_NAME) {
-                roblox::download_api_docs()?;
-            }
-
-            let security_level = match settings.roblox.security_level {
-                SecurityLevel::None => roblox::SECURITY_LEVEL_NONE,
-                SecurityLevel::RobloxScript => roblox::SECURITY_LEVEL_ROBLOX_SCRIPT,
-                SecurityLevel::LocalUser => roblox::SECURITY_LEVEL_LOCAL_USER,
-                SecurityLevel::Plugin => roblox::SECURITY_LEVEL_PLUGIN,
-            };
-
-            let definitions_file_name = roblox::get_definitions_file_for_level(security_level);
-
-            if !is_file(&definitions_file_name) {
-                roblox::download_definitions(security_level)?;
-            }
-
             let current_dir = std::env::current_dir().unwrap();
             let current_dir_str = 'outer: {
                 let (platform, _) = zed::current_platform();
                 if platform == zed::Os::Windows {
-                    // Remove the '/' at the beginning of the path, as Windows paths don't
-                    // have it. (Since we're in WASM, it always begins with a '/'.)
+                    // Remove the '/' at the beginning of the path, as Windows paths don't have it.
+                    // (Since we're in WASM, paths always begin with a '/'.)
                     if let Ok(path) = current_dir.strip_prefix("/") {
                         break 'outer path.display();
                     }
                 }
                 current_dir.display()
             };
-            args.push(format!("--docs={}/{}", &current_dir_str, roblox::API_DOCS_FILE_NAME).into());
-            args.push(
-                format!(
-                    "--definitions={}/{}",
-                    &current_dir_str, definitions_file_name
-                )
-                .into(),
-            );
+
+            if settings.roblox.download_api_documentation {
+                if !is_file(roblox::API_DOCS_FILE_NAME) {
+                    roblox::download_api_docs()?;
+                }
+                args.push(
+                    format!("--docs={}/{}", &current_dir_str, roblox::API_DOCS_FILE_NAME).into(),
+                );
+            }
+
+            if settings.roblox.download_definitions {
+                let security_level = match settings.roblox.security_level {
+                    SecurityLevel::None => roblox::SECURITY_LEVEL_NONE,
+                    SecurityLevel::RobloxScript => roblox::SECURITY_LEVEL_ROBLOX_SCRIPT,
+                    SecurityLevel::LocalUser => roblox::SECURITY_LEVEL_LOCAL_USER,
+                    SecurityLevel::Plugin => roblox::SECURITY_LEVEL_PLUGIN,
+                };
+
+                let definitions_file_name = roblox::get_definitions_file_for_level(security_level);
+
+                if !is_file(&definitions_file_name) {
+                    roblox::download_definitions(security_level)?;
+                }
+                args.push(
+                    format!(
+                        "--definitions={}/{}",
+                        &current_dir_str, definitions_file_name
+                    )
+                    .into(),
+                );
+            }
+        }
+
+        // Handle documentation and definition settings.
+        // Happens after handling Roblox settings because we want these to be added after the
+        // Roblox definition files are, because otherwise they can't depend on the Roblox types.
+        {
+            fn get_prefix<'a>(path: &str, proj_root_str: &'a str) -> &'a str {
+                match is_path_absolute(path) {
+                    true => "",
+                    false => proj_root_str,
+                }
+            }
+
+            let proj_root_str = &format!("{}/", worktree.root_path());
+
+            for def in &settings.definitions {
+                let prefix = get_prefix(&def, &proj_root_str);
+                args.push(format!("--definitions={prefix}{def}").into());
+            }
+
+            for doc in &settings.documentation {
+                let prefix = get_prefix(&doc, &proj_root_str);
+                args.push(format!("--docs={prefix}{doc}").into());
+            }
         }
 
         for arg in &settings.binary.args {
