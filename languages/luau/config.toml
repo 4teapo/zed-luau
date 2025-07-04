@@ -17,4 +17,4 @@ brackets = [
     { start = "function", end = "end", close = false, newline = true, not_in = [ "comment", "string" ] },
     { start = "repeat", end = "until", close = false, newline = true, not_in = [ "comment", "string" ] },
 ]
-collapsed_placeholder = "--[ ... ]--"
+tab_size = 4

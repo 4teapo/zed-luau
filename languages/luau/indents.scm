@@ -8,7 +8,6 @@
 (type_function_declaration "end" @end) @indent
 (function_definition "end" @end) @indent
 
-(_ "[[" "]]" @end) @indent
 (_ "[" "]" @end) @indent
 (_ "{" "}" @end) @indent
 (_ "(" ")" @end) @indent
