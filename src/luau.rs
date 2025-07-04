@@ -2,7 +2,6 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs;
-use std::ops::Index;
 use std::path::Path;
 use zed::lsp::CompletionKind;
 use zed::settings::LspSettings;
