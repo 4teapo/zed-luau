@@ -196,7 +196,7 @@ impl LuauExtension {
             if is_file(path) {
                 return Ok(BinaryPath {
                     path: path.clone(),
-                    is_extension_owned: false,
+                    is_extension_owned: true,
                 });
             }
         }
