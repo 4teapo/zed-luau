@@ -2,6 +2,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs;
+use std::ops::Index;
 use std::path::Path;
 use zed::lsp::CompletionKind;
 use zed::settings::LspSettings;
@@ -164,26 +165,40 @@ fn download_fflags() -> Result<()> {
     Ok(())
 }
 
+struct BinaryPath {
+    path: String,
+    is_extension_owned: bool,
+}
+
 impl LuauExtension {
     fn language_server_binary_path(
         &mut self,
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
         settings: &Settings,
-    ) -> Result<String> {
+    ) -> Result<BinaryPath> {
         if let Some(path) = &settings.binary.path {
-            return Ok(path.clone());
+            return Ok(BinaryPath {
+                path: path.clone(),
+                is_extension_owned: false,
+            });
         }
 
         if !settings.binary.ignore_system_version {
             if let Some(path) = worktree.which("luau-lsp") {
-                return Ok(path);
+                return Ok(BinaryPath {
+                    path,
+                    is_extension_owned: false,
+                });
             }
         }
 
         if let Some(path) = &self.cached_binary_path {
             if is_file(path) {
-                return Ok(path.clone());
+                return Ok(BinaryPath {
+                    path: path.clone(),
+                    is_extension_owned: false,
+                });
             }
         }
 
@@ -241,9 +256,10 @@ impl LuauExtension {
             zed::make_file_executable(&binary_path)?;
 
             let entries = fs::read_dir(LUAU_LSP_BINARY_DIR_NAME)
-                .map_err(|e| format!("failed to list working directory {e}"))?;
+                .map_err(|e| format!("failed to list luau-lsp binary directory {e}"))?;
             for entry in entries {
-                let entry = entry.map_err(|e| format!("failed to load directory entry {e}"))?;
+                let entry = entry
+                    .map_err(|e| format!("failed to load luau-lsp binary directory entry {e}"))?;
                 if entry.file_name().to_str() != Some(&dir_name) {
                     fs::remove_dir_all(&entry.path()).ok();
                 }
@@ -252,10 +268,13 @@ impl LuauExtension {
 
         self.cached_binary_path = Some(binary_path.clone());
 
-        Ok(binary_path)
+        Ok(BinaryPath {
+            path: binary_path,
+            is_extension_owned: true,
+        })
     }
 
-    fn language_server_proxy_path(
+    fn proxy_binary_path(
         &mut self,
         language_server_id: &LanguageServerId,
         settings: &Settings,
@@ -268,13 +287,9 @@ impl LuauExtension {
             &language_server_id,
             &zed::LanguageServerInstallationStatus::CheckingForUpdate,
         );
-        let release = zed::latest_github_release(
-            "4teapo/luau-lsp-proxy",
-            zed::GithubReleaseOptions {
-                require_assets: true,
-                pre_release: false,
-            },
-        )?;
+
+        // We version pin the proxy so that we don't need to worry about backwards compatibility for it.
+        let release = zed::github_release_by_tag_name("4teapo/luau-lsp-proxy", "v0.1.0")?;
 
         let (platform, arch) = zed::current_platform();
 
@@ -327,9 +342,10 @@ impl LuauExtension {
             zed::make_file_executable(&binary_path)?;
 
             let entries = fs::read_dir(PROXY_BINARY_DIR_NAME)
-                .map_err(|e| format!("failed to list working directory {e}"))?;
+                .map_err(|e| format!("failed to list proxy binary directory {e}"))?;
             for entry in entries {
-                let entry = entry.map_err(|e| format!("failed to load directory entry {e}"))?;
+                let entry = entry
+                    .map_err(|e| format!("failed to load proxy binary directory entry {e}"))?;
                 if entry.file_name().to_str() != Some(&dir_name) {
                     fs::remove_dir_all(&entry.path()).ok();
                 }
@@ -398,24 +414,34 @@ impl zed::Extension for LuauExtension {
             current_dir.display()
         };
 
-        let mut args: Vec<String> = Vec::new();
-        if settings.plugin.enabled {
-            args.push(settings.plugin.port.to_string());
-            if Path::new(OsStr::new(&binary_path)).is_relative() {
-                args.push(format!("{}/{}", current_dir_str, binary_path.clone()).into());
-            } else {
-                args.push(binary_path.clone().into());
-            }
-        }
-        args.push("lsp".into());
-
         fn is_path_absolute(path: &str) -> bool {
             let (platform, _) = zed::current_platform();
             match platform {
-                zed::Os::Windows => path.contains(':'),
-                _ => path.starts_with('/'),
+                // We need to handle Windows manually because of our UNIX-based WASM environment
+                zed::Os::Windows => {
+                    let mut chars = path.chars();
+                    match (chars.next(), chars.next(), chars.next()) {
+                        (Some(drive), Some(':'), Some(sep)) => {
+                            drive.is_ascii_alphabetic() && (sep == '\\' || sep == '/')
+                        }
+                        // UNC path
+                        _ => path.starts_with("//") || path.starts_with("\\\\"),
+                    }
+                }
+                _ => Path::new(OsStr::new(path)).is_absolute(),
             }
         }
+
+        let mut args: Vec<String> = Vec::new();
+        if settings.plugin.enabled {
+            args.push(settings.plugin.port.to_string());
+            if binary_path.is_extension_owned {
+                args.push(format!("{}/{}", current_dir_str, binary_path.path.clone()).into());
+            } else {
+                args.push(binary_path.path.clone().into());
+            }
+        }
+        args.push("lsp".into());
 
         // Handle fflag settings.
         {
@@ -541,9 +567,9 @@ impl zed::Extension for LuauExtension {
         }
 
         let command = if settings.plugin.enabled {
-            self.language_server_proxy_path(language_server_id, &settings)?
+            self.proxy_binary_path(language_server_id, &settings)?
         } else {
-            binary_path.clone()
+            binary_path.path.clone()
         };
 
         Ok(zed::Command {
