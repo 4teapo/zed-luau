@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2025-7-4
 
 ### Added
 
-- Added support for the companion plugin
+- Added support for the companion plugin.
 - Added support for putting extension settings directly under `lsp.luau-lsp.settings`.
   * This is now recommended but *if zed-luau finds `ext` in settings (project settings or regular
     settings, project settings being preferred), it will prefer that and ignore other settings.*
