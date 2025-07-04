@@ -1,6 +1,8 @@
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::fs;
+use std::path::Path;
 use zed::lsp::CompletionKind;
 use zed::settings::LspSettings;
 use zed::{CodeLabel, CodeLabelSpan, LanguageServerId, serde_json};
@@ -383,10 +385,27 @@ impl zed::Extension for LuauExtension {
         let binary_path =
             self.language_server_binary_path(language_server_id, worktree, &settings)?;
 
+        let current_dir = std::env::current_dir().unwrap();
+        let current_dir_str = 'outer: {
+            let (platform, _) = zed::current_platform();
+            if platform == zed::Os::Windows {
+                // Remove the '/' at the beginning of the path, as Windows paths don't have it.
+                // (Since we're in WASM, paths always begin with a '/'.)
+                if let Ok(path) = current_dir.strip_prefix("/") {
+                    break 'outer path.display();
+                }
+            }
+            current_dir.display()
+        };
+
         let mut args: Vec<String> = Vec::new();
         if settings.plugin.enabled {
             args.push(settings.plugin.port.to_string());
-            args.push(binary_path.clone().into());
+            if Path::new(OsStr::new(&binary_path)).is_relative() {
+                args.push(format!("{}/{}", current_dir_str, binary_path.clone()).into());
+            } else {
+                args.push(binary_path.clone().into());
+            }
         }
         args.push("lsp".into());
 
@@ -461,19 +480,6 @@ impl zed::Extension for LuauExtension {
         }
 
         if settings.roblox.enabled {
-            let current_dir = std::env::current_dir().unwrap();
-            let current_dir_str = 'outer: {
-                let (platform, _) = zed::current_platform();
-                if platform == zed::Os::Windows {
-                    // Remove the '/' at the beginning of the path, as Windows paths don't have it.
-                    // (Since we're in WASM, paths always begin with a '/'.)
-                    if let Ok(path) = current_dir.strip_prefix("/") {
-                        break 'outer path.display();
-                    }
-                }
-                current_dir.display()
-            };
-
             if settings.roblox.download_api_documentation {
                 if !is_file(roblox::API_DOCS_FILE_NAME) {
                     roblox::download_api_docs()?;
