@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added support for the companion plugin
 - Added support for putting extension settings directly under `lsp.luau-lsp.settings`.
+  * This is now recommended but *if zed-luau finds `ext` in settings (project settings or regular
+    settings, project settings being preferred), it will prefer that and ignore other settings.*
 - Added support for text objects ([docs](https://zed.dev/docs/vim#treesitter)).
 - Added settings for more fine-grained control over Roblox-related behavior.
   * roblox.download_api_documentation
