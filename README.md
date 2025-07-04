@@ -37,7 +37,11 @@ this:
             "enabled": false,
             // The security level of scripts.
             // Must be "roblox_script", "local_user", "plugin" or "none".
-            "security_level": "plugin"
+            "security_level": "plugin",
+            // Whether or not API documentation should be downloaded and added to luau-lsp.
+            "download_api_documentation": true,
+            // Whether or not definitions should be downloaded and added to luau-lsp.
+            "download_definitions": true
           },
           "fflags": {
             // Whether or not all boolean, non-experimental fflags should be
