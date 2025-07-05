@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed default security level not being plugin.
 - Fixed being unable to depend on automatically added Roblox types in additional definition files.
+- Fixed doc comments not being inserted with `extend_comment_on_newline`.
 
 ## [0.2.2] - 2024-12-22
 
