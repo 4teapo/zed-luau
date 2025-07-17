@@ -15,9 +15,9 @@ this:
   "lsp": {
     "luau-lsp": {
       "settings": {
-        // luau-lsp settings. What belongs here is specified below this entire block of code and the
-        // contents written out are a snapshot. If it seems the snapshot is out of date, please file
-        // an issue or PR about it.
+        // luau-lsp settings. What belongs here is specified below this entire block
+        // of code and the contents written out are a snapshot. If it seems the snapshot
+        // is out of date, please file an issue or PR about it.
         "luau-lsp": {
           // Files that match these globs will not be shown during auto-import
           "ignoreGlobs": [],
