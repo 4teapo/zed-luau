@@ -71,9 +71,6 @@ this:
             "enabled": true,
             /// Whether to automatically autocomplete end
             "autocompleteEnd": false,
-            /// Whether we should suggest automatic imports in completions
-            /// DEPRECATED: USE `completion.imports.enabled` INSTEAD
-            "suggestImports": false,
             /// Automatic imports configuration
             "imports": {},
             /// Automatically add parentheses to a function call
