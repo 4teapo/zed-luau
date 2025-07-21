@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for `declare extern type with` syntax
+
 ### Fixed
 
 - Fixed line comment being automatically inserted after pressing enter at the end of a line that
