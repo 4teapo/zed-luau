@@ -1,5 +1,5 @@
 # zed-luau
-A [Zed](https://zed.dev/) extension that adds support for the [Luau programming language](https://luau.org/).
+A [Zed](https://zed.dev/) extension that adds support for the [Luau scripting language](https://luau.org/).
 
 ## Installation
 To install zed-luau, you can use the extension menu in Zed, or clone the repository and install it
