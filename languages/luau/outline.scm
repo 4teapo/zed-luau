@@ -83,10 +83,19 @@
   "extends"? @context
   superclass: (identifier)? @name) @item
 
-(class_property
+(declare_extern_type_declaration
+  "declare" @context
+  "extern" @context
+  "type" @context
+  name: (identifier) @name
+  "extends"? @context
+  superclass: (identifier)? @name
+  "with" @context) @item
+
+(extern_type_property
   left: (field_identifier) @name) @item
 
-(class_indexer
+(extern_type_indexer
   "[" @context
   (_) @name
   "]" @context) @item
