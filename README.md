@@ -15,8 +15,86 @@ this:
   "lsp": {
     "luau-lsp": {
       "settings": {
-        // luau-lsp settings. What belongs here is specified below this block.
-        "luau-lsp": {},
+        // luau-lsp settings. What belongs here is specified below this entire block
+        // of code and the contents written out are a snapshot. If it seems the snapshot
+        // is out of date, please file an issue or PR about it.
+        "luau-lsp": {
+          // Files that match these globs will not be shown during auto-import
+          "ignoreGlobs": [],
+          "sourcemap": {
+            // Whether Rojo sourcemap-related features are enabled
+            "enabled": true,
+            // Whether we should autogenerate the Rojo sourcemap by calling `rojo sourcemap`
+            "autogenerate": true,
+            // The project file to generate a sourcemap for
+            "rojoProjectFile": "default.project.json",
+            // Whether non script instances should be included in the generated sourcemap
+            "includeNonScripts": true,
+            // The sourcemap file name
+            "sourcemapFile": "sourcemap.json"
+          },
+          "diagnostics": {
+            // Whether to also compute diagnostics for dependents when a file changes
+            "includeDependents": true,
+            // Whether to compute diagnostics for a whole workspace
+            "workspace": false,
+            // Whether to use expressive DM types in the diagnostics typechecker
+            "strictDatamodelTypes": false
+          },
+          "types": {
+            // Any definition files to load globally
+            "definitionFiles": [],
+            // A list of globals to remove from the global scope. Accepts full libraries
+            // or particular functions (e.g., `table` or `table.clone`)
+            "disabledGlobals": []
+          },
+          "inlayHints": {
+            // "none" | "literals" | "all"
+            "parameterNames": "none",
+            "variableTypes": false,
+            "parameterTypes": false,
+            "functionReturnTypes": false,
+            "hideHintsForErrorTypes": false,
+            "hideHintsForMatchingParameterNames": true,
+            "typeHintMaxLength": 50,
+            /// Whether type inlay hints should be made insertable
+            "makeInsertable": true
+          },
+          "hover": {
+            "enabled": true,
+            "showTableKinds": false,
+            "multilineFunctionDefinitions": false,
+            "strictDatamodelTypes": true,
+            "includeStringLength": true
+          },
+          "completion": {
+            "enabled": true,
+            /// Whether to automatically autocomplete end
+            "autocompleteEnd": false,
+            /// Automatic imports configuration
+            "imports": {},
+            /// Automatically add parentheses to a function call
+            "addParentheses": true,
+            /// If parentheses are added, include a $0 tabstop after the parentheses
+            "addTabstopAfterParentheses": true,
+            /// If parentheses are added, fill call arguments with parameter names
+            "fillCallArguments": true,
+            /// Whether to show non-function properties when performing a method call with a colon
+            "showPropertiesOnMethodCall": false,
+            /// Enables the experimental fragment autocomplete system for performance improvements
+            "enableFragmentAutocomplete": false
+          },
+          "signatureHelp": {
+            "enabled": true
+          },
+          "index": {
+            /// Whether the whole workspace should be indexed. If disabled, only limited support is
+            // available for features such as "Find All References" and "Rename"
+            "enabled": true,
+            /// The maximum amount of files that can be indexed
+            "maxFiles": 10000
+          }
+        },
         "roblox": {
           // Whether or not Roblox-specific features should be enabled.
           "enabled": false,
