@@ -57,7 +57,7 @@ this:
             "hideHintsForErrorTypes": false,
             "hideHintsForMatchingParameterNames": true,
             "typeHintMaxLength": 50,
-            /// Whether type inlay hints should be made insertable
+            // Whether type inlay hints should be made insertable
             "makeInsertable": true
           },
           "hover": {
@@ -68,30 +68,48 @@ this:
             "includeStringLength": true
           },
           "completion": {
-            "enabled": true,
-            /// Whether to automatically autocomplete end
-            "autocompleteEnd": false,
-            /// Automatic imports configuration
-            "imports": {},
-            /// Automatically add parentheses to a function call
+              "enabled": true,
+              // Whether to automatically autocomplete end
+              "autocompleteEnd": false,
+              // Automatic imports configuration
+              "imports": {
+              // Whether we should suggest automatic imports in completions
+              "enabled": false,
+              // Whether services should be suggested in auto-import
+              "suggestServices": true,
+              // Whether requires should be suggested in auto-import
+              "suggestRequires": true,
+              // The style of the auto-imported require.
+              // "Auto" | "AlwaysRelative" | "AlwaysAbsolute"
+              "requireStyle": "Auto",
+              "stringRequires": {
+                // Whether to use string requires when auto-importing requires (roblox platform only)
+                "enabled": false
+              },
+              // Whether services and requires should be separated by an empty line
+              "separateGroupsWithLine": false,
+              // Files that match these globs will not be shown during auto-import
+              "ignoreGlobs": [],
+            },
+            // Automatically add parentheses to a function call
             "addParentheses": true,
-            /// If parentheses are added, include a $0 tabstop after the parentheses
+            // If parentheses are added, include a $0 tabstop after the parentheses
             "addTabstopAfterParentheses": true,
-            /// If parentheses are added, fill call arguments with parameter names
+            // If parentheses are added, fill call arguments with parameter names
             "fillCallArguments": true,
-            /// Whether to show non-function properties when performing a method call with a colon
+            // Whether to show non-function properties when performing a method call with a colon
             "showPropertiesOnMethodCall": false,
-            /// Enables the experimental fragment autocomplete system for performance improvements
+            // Enables the experimental fragment autocomplete system for performance improvements
             "enableFragmentAutocomplete": false
           },
           "signatureHelp": {
             "enabled": true
           },
           "index": {
-            /// Whether the whole workspace should be indexed. If disabled, only limited support is
+            // Whether the whole workspace should be indexed. If disabled, only limited support is
             // available for features such as "Find All References" and "Rename"
             "enabled": true,
-            /// The maximum amount of files that can be indexed
+            // The maximum amount of files that can be indexed
             "maxFiles": 10000
           }
         },
