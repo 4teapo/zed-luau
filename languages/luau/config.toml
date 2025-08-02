@@ -2,6 +2,7 @@ name = "Luau"
 grammar = "luau"
 path_suffixes = ["luau"]
 line_comments = ["-- ", "--- "]
+block_comment = ["--[", "]"]
 autoclose_before = ";:.,=}])>"
 first_line_pattern = "^#!.*\b(lune|luau|zune)\b"
 brackets = [

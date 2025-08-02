@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.1] - 2025-8-2
 
+### Added
+
+- Added support for `declare extern type with` syntax
+
 ### Fixed
 
 - Fixed binary auto-install failing on X86-64 linux.
+- Fixed line comment being automatically inserted after pressing enter at the end of a line that
+  starts a block comment.
 
 ## [0.3.0] - 2025-7-4
 
