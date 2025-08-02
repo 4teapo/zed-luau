@@ -89,8 +89,7 @@
   "type" @context
   name: (identifier) @name
   "extends"? @context
-  superclass: (identifier)? @name
-  "with" @context) @item
+  supertype: (identifier)? @name) @item
 
 (extern_type_property
   left: (field_identifier) @name) @item
