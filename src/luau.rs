@@ -220,7 +220,7 @@ impl LuauExtension {
             zed::Os::Windows => "luau-lsp-win64.zip",
             zed::Os::Linux => match arch {
                 zed::Architecture::Aarch64 => "luau-lsp-linux-arm64.zip",
-                _ => "luau-lsp-linux.zip",
+                _ => "luau-lsp-linux-x86_64.zip",
             },
         };
 
