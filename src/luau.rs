@@ -401,17 +401,7 @@ impl zed::Extension for LuauExtension {
             self.language_server_binary_path(language_server_id, worktree, &settings)?;
 
         let current_dir = std::env::current_dir().unwrap();
-        let current_dir_str = 'outer: {
-            let (platform, _) = zed::current_platform();
-            if platform == zed::Os::Windows {
-                // Remove the '/' at the beginning of the path, as Windows paths don't have it.
-                // (Since we're in WASM, paths always begin with a '/'.)
-                if let Ok(path) = current_dir.strip_prefix("/") {
-                    break 'outer path.display();
-                }
-            }
-            current_dir.display()
-        };
+        let current_dir_str = current_dir.display();
 
         fn is_path_absolute(path: &str) -> bool {
             let (platform, _) = zed::current_platform();
