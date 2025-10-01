@@ -68,11 +68,11 @@ this:
             "includeStringLength": true
           },
           "completion": {
-              "enabled": true,
-              // Whether to automatically autocomplete end
-              "autocompleteEnd": false,
-              // Automatic imports configuration
-              "imports": {
+            "enabled": true,
+            // Whether to automatically autocomplete end
+            "autocompleteEnd": false,
+            // Automatic imports configuration
+            "imports": {
               // Whether we should suggest automatic imports in completions
               "enabled": false,
               // Whether services should be suggested in auto-import
@@ -89,7 +89,7 @@ this:
               // Whether services and requires should be separated by an empty line
               "separateGroupsWithLine": false,
               // Files that match these globs will not be shown during auto-import
-              "ignoreGlobs": [],
+              "ignoreGlobs": []
             },
             // Automatically add parentheses to a function call
             "addParentheses": true,
@@ -145,7 +145,8 @@ this:
           "path": null,
           // Additional arguments to pass to the language server. If you want to
           // set exactly which arguments are passed, use `lsp.luau-lsp.binary.path`
-          // & `lsp.luau-lsp.binary.args` instead.
+          // & `lsp.luau-lsp.binary.args` instead. Note that this path does not
+          // support tilde expansion (`~/...`).
           "args": []
         },
         "plugin": {
