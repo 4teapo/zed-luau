@@ -232,7 +232,13 @@ impl LuauExtension {
 
         let dir_name = format!("luau-lsp-{}", release.version);
         let version_dir = format!("{LUAU_LSP_BINARY_DIR_NAME}/{dir_name}");
-        let binary_path = format!("{version_dir}/luau-lsp");
+        let binary_path = format!(
+            "{version_dir}/luau-lsp{}",
+            match platform {
+                zed::Os::Mac | zed::Os::Linux => "",
+                zed::Os::Windows => ".exe",
+            }
+        );
 
         if !is_dir(LUAU_LSP_BINARY_DIR_NAME) {
             fs::create_dir(LUAU_LSP_BINARY_DIR_NAME)
@@ -318,7 +324,13 @@ impl LuauExtension {
 
         let dir_name = format!("luau-lsp-proxy-{}", release.version);
         let version_dir = format!("{PROXY_BINARY_DIR_NAME}/{dir_name}");
-        let binary_path = format!("{version_dir}/luau-lsp-proxy");
+        let binary_path = format!(
+            "{version_dir}/luau-lsp-proxy{}",
+            match platform {
+                zed::Os::Mac | zed::Os::Linux => "",
+                zed::Os::Windows => ".exe",
+            }
+        );
 
         if !is_dir(PROXY_BINARY_DIR_NAME) {
             fs::create_dir(PROXY_BINARY_DIR_NAME)
