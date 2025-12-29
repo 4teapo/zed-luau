@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support for explicit type parameter instantiation.
+
 ## [0.3.3] - 2025-10-16
 
 ### Fixed

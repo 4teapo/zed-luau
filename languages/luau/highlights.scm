@@ -64,6 +64,8 @@
     "}"
     "<"
     ">"
+    "<<"
+    ">>"
 ] @punctuation.bracket
 
 [
@@ -246,6 +248,8 @@
     (identifier) @function
     (dot_index_expression
       field: (field_identifier) @function)
+    (explicit_type_parameter_instantiation
+      function: (identifier) @function)
   ])
 
 (parameter_attribute
