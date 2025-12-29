@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changed endpoint for all requests except luau-lsp download, making GitHub rate limits less likely
   and easier to work around (just use a local binary).
+  
+# Fixed
+
+- Fixed behavioral difference between `luau-lsp.types.definitionFiles` and `definitions`. They can
+  now be used interchangeably.
 
 ## [0.3.3] - 2025-10-16
 

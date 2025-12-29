@@ -6,8 +6,10 @@ use std::path::Path;
 use zed::lsp::CompletionKind;
 use zed::settings::LspSettings;
 use zed::{CodeLabel, CodeLabelSpan, LanguageServerId, serde_json};
+use zed_extension_api::serde_json::Value;
 use zed_extension_api::{self as zed, Result};
 
+mod json;
 mod roblox;
 
 const FFLAG_URL: &str =
@@ -20,6 +22,8 @@ const PROXY_BINARY_DIR_NAME: &str = "proxy-binaries";
 #[derive(Debug, Deserialize)]
 #[serde(default)]
 struct Settings {
+    #[serde(rename = "luau-lsp")]
+    luau_lsp: serde_json::Map<String, serde_json::Value>,
     roblox: RobloxSettings,
     fflags: FFlagsSettings,
     binary: BinarySettings,
@@ -31,6 +35,7 @@ struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Settings {
+            luau_lsp: Default::default(),
             roblox: Default::default(),
             fflags: Default::default(),
             binary: Default::default(),
@@ -151,7 +156,25 @@ fn get_extension_settings(settings_val: Option<serde_json::Value>) -> Result<Set
 
     let value = settings.remove("ext").unwrap_or(settings_val);
 
-    serde_path_to_error::deserialize(value).map_err(|e| e.to_string())
+    let mut result: Result<Settings> =
+        serde_path_to_error::deserialize(value).map_err(|e| e.to_string());
+    if let Ok(ref mut settings) = result {
+        let types = json::get_or_insert_object(&mut settings.luau_lsp, "types");
+        // Merge luau-lsp.types.definitions and definitions. The former is read by the language
+        // server to e.g. not treat definition files as regular luau files. The latter cannot be
+        // removed for backwards compatibility reasons.
+        let definition_files = json::get_or_insert_array(types, "definitionFiles");
+        let old_definition_count = settings.definitions.len();
+        for def in &mut *definition_files {
+            if let Value::String(s) = def {
+                settings.definitions.push(s.clone())
+            }
+        }
+        for i in 0..old_definition_count {
+            definition_files.push(Value::String(settings.definitions[i].clone()));
+        }
+    }
+    result
 }
 
 fn download_fflags() -> Result<()> {
@@ -621,11 +644,13 @@ impl zed::Extension for LuauExtension {
         language_server_id: &zed::LanguageServerId,
         _worktree: &zed::Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        let settings = LspSettings::for_worktree(language_server_id.as_ref(), _worktree)
+        let settings_val = LspSettings::for_worktree(language_server_id.as_ref(), _worktree)
             .ok()
-            .and_then(|lsp_settings| lsp_settings.settings.clone())
-            .unwrap_or_default();
-        Ok(Some(serde_json::json!(settings)))
+            .and_then(|lsp_settings| lsp_settings.settings.clone());
+        let settings = get_extension_settings(settings_val)?;
+        Ok(Some(serde_json::json!({
+            "luau-lsp": settings.luau_lsp
+        })))
     }
 }
 
