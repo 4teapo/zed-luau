@@ -1,6 +1,6 @@
 use zed_extension_api::{self as zed, Result};
 
-const API_DOCS_URL: &str = "https://raw.githubusercontent.com/MaximumADHD/Roblox-Client-Tracker/roblox/api-docs/en-us.json";
+const API_DOCS_URL: &str = "https://luau-lsp.pages.dev/api-docs/en-us.json";
 pub const SECURITY_LEVEL_NONE: &str = "None";
 pub const SECURITY_LEVEL_LOCAL_USER: &str = "LocalUserSecurity";
 pub const SECURITY_LEVEL_PLUGIN: &str = "PluginSecurity";
@@ -9,7 +9,7 @@ pub const API_DOCS_FILE_NAME: &str = "api-docs.json";
 
 pub fn get_definitions_url_for_level(level: &str) -> String {
     format!(
-        "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.{}.d.luau",
+        "https://luau-lsp.pages.dev/type-definitions/globalTypes.{}.d.luau",
         level
     )
 }
