@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added support for explicit type parameter instantiation.
 - Added support for comment highlights via the zed-comment extension.
 
+# Changed
+
+- Changed endpoint for all requests except luau-lsp download, making GitHub rate limits less likely
+  and easier to work around (just use a local binary).
+
 ## [0.3.3] - 2025-10-16
 
 ### Fixed
