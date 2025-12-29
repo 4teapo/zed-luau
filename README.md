@@ -5,6 +5,29 @@ A [Zed](https://zed.dev/) extension that adds support for the [Luau scripting la
 To install zed-luau, you can use the extension menu in Zed, or clone the repository and install it
 as a dev extension with `zed: install dev extension`.
 
+It is recommended that you additionally add the `.luaurc` JSON schema and bind `.luaurc` to the JSONC language:
+```jsonc
+{
+  "file_types": {
+    "JSONC": ["luaurc"]
+  },
+  "lsp": {
+    "json-language-server": {
+      "settings": {
+        "json": {
+          "schemas": [
+            {
+              "fileMatch": [".luaurc"],
+              "url": "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/refs/heads/main/editors/code/schemas/luaurc.json"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
 ## Configuration
 This extension can be configured via your Zed `settings.json`. The default configuration looks like
 this:
@@ -19,7 +42,7 @@ this:
         // of code and the contents written out are a snapshot. If it seems the snapshot
         // is out of date, please file an issue or PR about it.
         "luau-lsp": {
-          // Files that match these globs will not be shown during auto-import
+          // Diagnostics will not be reported for any file matching these globs unless the file is currently open
           "ignoreGlobs": [],
           "sourcemap": {
             // Whether Rojo sourcemap-related features are enabled
@@ -49,37 +72,55 @@ this:
             "disabledGlobals": []
           },
           "inlayHints": {
+            // Show inlay hints for function parameter names
             // "none" | "literals" | "all"
             "parameterNames": "none",
+            // Show inlay hints for variable types
             "variableTypes": false,
+            // Show inlay hints for parameter types
             "parameterTypes": false,
+            // Show inlay hints for function return types
             "functionReturnTypes": false,
+            // "Whether type hints should be hidden if they resolve to an error type
             "hideHintsForErrorTypes": false,
+            // Whether type hints should be hidden if the resolved variable name matches the parameter name
             "hideHintsForMatchingParameterNames": true,
+            // The maximum length a type hint should be before being truncated
             "typeHintMaxLength": 50,
-            // Whether type inlay hints should be made insertable
+            // Whether type annotation inlay hints can be made insertable by clicking
             "makeInsertable": true
           },
           "hover": {
+            // Enable hover
             "enabled": true,
+            // Show table kinds
             "showTableKinds": false,
+            // Show function definitions on multiple lines
             "multilineFunctionDefinitions": false,
+            // Use strict DataModel types in hover display. When on, this is equivalent to autocompletion types. When off, this is equivalent to diagnostic types
             "strictDatamodelTypes": true,
+            // Show string length when hovering over a string literal
             "includeStringLength": true
           },
           "completion": {
+            // Enable autocomplete
             "enabled": true,
-            // Whether to automatically autocomplete end
+            // Automatically insert an `end` when opening a block
+            // NOTE: Does not work in Zed currently
             "autocompleteEnd": false,
             // Automatic imports configuration
             "imports": {
-              // Whether we should suggest automatic imports in completions
+              // Suggest automatic imports in completion items
               "enabled": false,
-              // Whether services should be suggested in auto-import
+              // Whether GetService completions are suggested in autocomplete
               "suggestServices": true,
-              // Whether requires should be suggested in auto-import
+              // When non-empty, only show the services listed when auto-importing
+              "includedServices": [],
+              // Do not show any of the listed services when auto-importing
+              "excludedServices": [],
+              // Whether module requires are suggested in autocomplete
               "suggestRequires": true,
-              // The style of the auto-imported require.
+              // The style of requires when autocompleted
               // "Auto" | "AlwaysRelative" | "AlwaysAbsolute"
               "requireStyle": "Auto",
               "stringRequires": {
@@ -91,13 +132,13 @@ this:
               // Files that match these globs will not be shown during auto-import
               "ignoreGlobs": []
             },
-            // Automatically add parentheses to a function call
+            // Add parentheses after completing a function call
             "addParentheses": true,
-            // If parentheses are added, include a $0 tabstop after the parentheses
+            // If addParentheses is enabled, then include a tabstop after the parentheses for the cursor to move to
             "addTabstopAfterParentheses": true,
-            // If parentheses are added, fill call arguments with parameter names
+            // Fill parameter names in an autocompleted function call, which can be tabbed through. Requires `#luau-lsp.completion.addParentheses#` to be enabled
             "fillCallArguments": true,
-            // Whether to show non-function properties when performing a method call with a colon
+            // Whether to show non-function properties when performing a method call with a colon (e.g., `foo:bar`)
             "showPropertiesOnMethodCall": false,
             // Enables the experimental fragment autocomplete system for performance improvements
             "enableFragmentAutocomplete": false
