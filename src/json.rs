@@ -1,4 +1,5 @@
-use zed_extension_api::serde_json::{Map, Value, map::Entry};
+use zed::serde_json::{Map, Value, map::Entry};
+use zed_extension_api::{self as zed};
 
 pub fn get_or_insert_object<'a>(
     map: &'a mut Map<String, Value>,
