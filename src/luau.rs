@@ -4,9 +4,9 @@ use std::ffi::OsStr;
 use std::fs;
 use std::path::Path;
 use zed::lsp::CompletionKind;
+use zed::serde_json::{Map, Value};
 use zed::settings::LspSettings;
 use zed::{CodeLabel, CodeLabelSpan, LanguageServerId, serde_json};
-use zed_extension_api::serde_json::Value;
 use zed_extension_api::{self as zed, Result};
 
 mod json;
@@ -154,7 +154,14 @@ fn get_extension_settings(settings_val: Option<serde_json::Value>) -> Result<Set
         return Err("invalid luau-lsp settings: `settings` must be an object, but isn't.".into());
     };
 
-    let value = settings.remove("ext").unwrap_or(settings_val);
+    let luau_lsp_settings = settings.remove("luau-lsp");
+    let mut value = settings.remove("ext").unwrap_or(settings_val);
+    if let Value::Object(o) = &mut value {
+        o.insert(
+            "luau-lsp".to_string(),
+            luau_lsp_settings.unwrap_or(Value::Object(Map::new())),
+        );
+    }
 
     let mut result: Result<Settings> =
         serde_path_to_error::deserialize(value).map_err(|e| e.to_string());
