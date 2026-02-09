@@ -5,29 +5,6 @@ A [Zed](https://zed.dev/) extension that adds support for the [Luau scripting la
 To install zed-luau, you can use the extension menu in Zed, or clone the repository and install it
 as a dev extension with `zed: install dev extension`.
 
-It is recommended that you additionally add the `.luaurc` JSON schema and bind `.luaurc` to the JSONC language:
-```jsonc
-{
-  "file_types": {
-    "JSONC": ["luaurc"]
-  },
-  "lsp": {
-    "json-language-server": {
-      "settings": {
-        "json": {
-          "schemas": [
-            {
-              "fileMatch": [".luaurc"],
-              "url": "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/refs/heads/main/editors/code/schemas/luaurc.json"
-            }
-          ]
-        }
-      }
-    }
-  }
-}
-```
-
 ## Configuration
 This extension can be configured via your Zed `settings.json`. The default configuration looks like
 this:
@@ -38,6 +15,61 @@ this:
   "lsp": {
     "luau-lsp": {
       "settings": {
+        "roblox": {
+          // Whether or not Roblox-specific features should be enabled.
+          "enabled": false,
+          // The security level of scripts.
+          // Must be "roblox_script", "local_user", "plugin" or "none".
+          "security_level": "plugin",
+          // Whether or not API documentation should be downloaded and added to luau-lsp.
+          "download_api_documentation": true,
+          // Whether or not definitions should be downloaded and added to luau-lsp.
+          "download_definitions": true
+        },
+        "fflags": {
+          // Whether or not all boolean, non-experimental fflags should be enabled
+          // by default.
+          "enable_by_default": false,
+          // Whether or not the new Luau type solver should be enabled.
+          "enable_new_solver": false,
+          // Whether or not FFlag values should be synced with Roblox's default
+          // FFlag values.
+          "sync": true,
+          // FFlags that are forced to some value.
+          "override": {}
+        },
+        "binary": {
+          // Whether or not the extension should skip searching for a binary in
+          // your `$PATH` to use instead of installing one itself.
+          "ignore_system_version": false,
+          // The path to the language server binary you want to force the extension
+          // to use.
+          "path": null,
+          // Additional arguments to pass to the language server. If you want to
+          // set exactly which arguments are passed, use `lsp.luau-lsp.binary.path`
+          // & `lsp.luau-lsp.binary.args` instead. Note that this path does not
+          // support tilde expansion (`~/...`).
+          "args": []
+        },
+        "plugin": {
+          // Whether or not Roblox Studio Plugin support should be enabled. If false, the
+          // extension will use the regular language server binary only, whereas if true,
+          // it will use, thereby starting an HTTP server, and potentially install
+          // 4teapo/luau-lsp-proxy as well. This is necessary for plugin support
+          // to be possible.
+          "enabled": false,
+          // The port number to connect the Roblox Studio Plugin to.
+          "port": 3667,
+          // The path to the luau-lsp-proxy binary you want to force the extension
+          // to use. If null, the extension tries to install it itself.
+          "proxy_path": null
+        },
+        // Additional definition file paths to pass to the language server.
+        // This can be used interchangeably with `luau-lsp.types.definitionFiles`
+        // for legacy reasons.
+        "definitions": [],
+        // Additional documentation file paths to pass to the language server.
+        "documentation": []
         // luau-lsp settings. What belongs here is specified below this entire block
         // of code and the contents written out are a snapshot. If it seems the snapshot
         // is out of date, please file an issue or PR about it.
@@ -154,59 +186,6 @@ this:
             "maxFiles": 10000
           }
         },
-        "roblox": {
-          // Whether or not Roblox-specific features should be enabled.
-          "enabled": false,
-          // The security level of scripts.
-          // Must be "roblox_script", "local_user", "plugin" or "none".
-          "security_level": "plugin",
-          // Whether or not API documentation should be downloaded and added to luau-lsp.
-          "download_api_documentation": true,
-          // Whether or not definitions should be downloaded and added to luau-lsp.
-          "download_definitions": true
-        },
-        "fflags": {
-          // Whether or not all boolean, non-experimental fflags should be enabled
-          // by default.
-          "enable_by_default": false,
-          // Whether or not the new Luau type solver should be enabled.
-          "enable_new_solver": false,
-          // Whether or not FFlag values should be synced with Roblox's default
-          // FFlag values.
-          "sync": true,
-          // FFlags that are forced to some value.
-          "override": {}
-        },
-        "binary": {
-          // Whether or not the extension should skip searching for a binary in
-          // your `$PATH` to use instead of installing one itself.
-          "ignore_system_version": false,
-          // The path to the language server binary you want to force the extension
-          // to use.
-          "path": null,
-          // Additional arguments to pass to the language server. If you want to
-          // set exactly which arguments are passed, use `lsp.luau-lsp.binary.path`
-          // & `lsp.luau-lsp.binary.args` instead. Note that this path does not
-          // support tilde expansion (`~/...`).
-          "args": []
-        },
-        "plugin": {
-          // Whether or not Roblox Studio Plugin support should be enabled. If false, the
-          // extension will use the regular language server binary only, whereas if true,
-          // it will use, thereby starting an HTTP server, and potentially install
-          // 4teapo/luau-lsp-proxy as well. This is necessary for plugin support
-          // to be possible.
-          "enabled": false,
-          // The port number to connect the Roblox Studio Plugin to.
-          "port": 3667,
-          // The path to the luau-lsp-proxy binary you want to force the extension
-          // to use. If null, the extension tries to install it itself.
-          "proxy_path": null
-        },
-        // Additional definition file paths to pass to the language server.
-        "definitions": [],
-        // Additional documentation file paths to pass to the language server.
-        "documentation": []
       }
     }
   }
@@ -240,16 +219,28 @@ For example, to enable inlay hints, you can add the following to your Zed `setti
 zed-luau does not provide Rojo support by itself. It's ergonomical to use [Zed tasks](https://zed.dev/docs/tasks)
 to run Rojo commands. For example:
 
-```json
+```jsonc
 [
+  // You can put serve and autogenerate sourcemap in the same command
+  // with `rojo serve & rojo sourcemap ...` on macOS.
   {
-    "label": "Serve and autogenerate sourcemap",
-    "command": "rojo serve & rojo sourcemap --watch --include-non-scripts --output sourcemap.json"
+    "label": "Serve",
+    "command": "rojo serve" 
   },
   {
-    "label": "Build and open",
-    "command": "rojo build --output a.rbxl; open a.rbxl"
-  }
+    "label": "Autogenerate sourcemap",
+    "command": "rojo sourcemap --watch --include-non-scripts --output sourcemap.json" 
+  },
+  // You can build and open in one command with "rojo build ...; open a.rbxl on macOS.
+  {
+    "label": "Build",
+    "command": "rojo build --output a.rbxl"
+  },
+  // macOS variant
+  {
+    "label": "Open",
+    "command": "open a.rbxl"
+  },
 ]
 ```
 
@@ -267,29 +258,6 @@ To get autocompletion in `project.json` files, you can add the following to your
               "url": "https://raw.githubusercontent.com/rojo-rbx/vscode-rojo/refs/heads/master/schemas/project.template.schema.json"
             }
           ]
-        }
-      }
-    }
-  }
-}
-```
-
-## Lune
-To use zed-luau with lune, follow the [Editor Setup guide](https://lune-org.github.io/docs/getting-started/4-editor-setup).
-The editor settings for Zed are as follows:
-
-```jsonc
-{
-  "lsp": {
-    "luau-lsp": {
-      "settings": {
-        "luau-lsp": {
-          "require": {
-            "mode": "relativeToFile",
-            "directoryAliases": {
-              "@lune/": "~/.lune/.typedefs/x.y.z/"
-            }
-          }
         }
       }
     }
