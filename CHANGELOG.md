@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Changed how functions display in autocomplete to `foo(bar, baz)`
+
+### Fixed
+
+- Fixed type of property not being shown in autocomplete
+
 ## [0.3.5] - 2025-12-30
 
 ### Fixed
