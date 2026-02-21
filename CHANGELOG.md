@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed explicit type parameter in method calls being syntax errors
 - Fixed functions with explicit type parameters not always being highlighted as functions
+- Fixed type of property not being shown in autocomplete
+
+### Changed
+
+- Changed how functions display in autocomplete to `foo(bar, baz)`
 
 ## [0.3.5] - 2025-12-30
 

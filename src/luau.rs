@@ -627,21 +627,18 @@ impl zed::Extension for LuauExtension {
     ) -> Option<CodeLabel> {
         match completion.kind? {
             CompletionKind::Method | CompletionKind::Function => {
-                let name_len = completion.label.find('(').unwrap_or(completion.label.len());
+                let mut code = completion.label.clone();
+                if let Some(label_details) = completion.label_details {
+                    if let Some(detail) = label_details.detail {
+                        code.push_str(detail.as_str());
+                    }
+                }
                 Some(CodeLabel {
-                    spans: vec![CodeLabelSpan::code_range(0..completion.label.len())],
-                    filter_range: (0..name_len).into(),
-                    code: completion.label,
+                    spans: vec![CodeLabelSpan::code_range(0..code.len())],
+                    filter_range: (0..code.len()).into(),
+                    code,
                 })
             }
-            CompletionKind::Field => Some(CodeLabel {
-                spans: vec![CodeLabelSpan::literal(
-                    completion.label.clone(),
-                    Some("property".into()),
-                )],
-                filter_range: (0..completion.label.len()).into(),
-                code: Default::default(),
-            }),
             _ => None,
         }
     }
