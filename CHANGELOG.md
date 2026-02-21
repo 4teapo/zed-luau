@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed explicit type parameter in method calls being syntax errors
+- Fixed functions with explicit type parameters not always being highlighted as functions
+
 ## [0.3.5] - 2025-12-30
 
 ### Fixed

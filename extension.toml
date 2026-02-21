@@ -12,4 +12,4 @@ language = "Luau"
 
 [grammars.luau]
 repository = "https://github.com/4teapo/tree-sitter-luau"
-commit = "0d66daa8a247fad86c19964dd2406a8646cac966"
+commit = "14cff6d48536f44819453f00a48546e1ef1e970f"
