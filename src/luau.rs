@@ -628,10 +628,10 @@ impl zed::Extension for LuauExtension {
         match completion.kind? {
             CompletionKind::Method | CompletionKind::Function => {
                 let mut code = completion.label.clone();
-                if let Some(label_details) = completion.label_details {
-                    if let Some(detail) = label_details.detail {
-                        code.push_str(detail.as_str());
-                    }
+                if let Some(detail) = completion.label_details.and_then(|ld| ld.detail) {
+                    code.push_str(detail.as_str());
+                } else {
+                    code.push_str("()");
                 }
                 Some(CodeLabel {
                     spans: vec![CodeLabelSpan::code_range(0..code.len())],
