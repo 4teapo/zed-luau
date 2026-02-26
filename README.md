@@ -24,7 +24,7 @@ this:
           // Whether or not API documentation should be downloaded and added to luau-lsp.
           "download_api_documentation": true,
           // Whether or not definitions should be downloaded and added to luau-lsp.
-          "download_definitions": true
+          "download_definitions": true,
         },
         "fflags": {
           // Whether or not all boolean, non-experimental fflags should be enabled
@@ -36,7 +36,7 @@ this:
           // FFlag values.
           "sync": true,
           // FFlags that are forced to some value.
-          "override": {}
+          "override": {},
         },
         "binary": {
           // Whether or not the extension should skip searching for a binary in
@@ -49,7 +49,7 @@ this:
           // set exactly which arguments are passed, use `lsp.luau-lsp.binary.path`
           // & `lsp.luau-lsp.binary.args` instead. Note that this path does not
           // support tilde expansion (`~/...`).
-          "args": []
+          "args": [],
         },
         "plugin": {
           // Whether or not Roblox Studio Plugin support should be enabled. If false, the
@@ -62,14 +62,14 @@ this:
           "port": 3667,
           // The path to the luau-lsp-proxy binary you want to force the extension
           // to use. If null, the extension tries to install it itself.
-          "proxy_path": null
+          "proxy_path": null,
         },
         // Additional definition file paths to pass to the language server.
         // This can be used interchangeably with `luau-lsp.types.definitionFiles`
         // for legacy reasons.
         "definitions": [],
         // Additional documentation file paths to pass to the language server.
-        "documentation": []
+        "documentation": [],
         // luau-lsp settings. What belongs here is specified below this entire block
         // of code and the contents written out are a snapshot. If it seems the snapshot
         // is out of date, please file an issue or PR about it.
@@ -86,7 +86,7 @@ this:
             // Whether non script instances should be included in the generated sourcemap
             "includeNonScripts": true,
             // The sourcemap file name
-            "sourcemapFile": "sourcemap.json"
+            "sourcemapFile": "sourcemap.json",
           },
           "diagnostics": {
             // Whether to also compute diagnostics for dependents when a file changes
@@ -94,14 +94,14 @@ this:
             // Whether to compute diagnostics for a whole workspace
             "workspace": false,
             // Whether to use expressive DM types in the diagnostics typechecker
-            "strictDatamodelTypes": false
+            "strictDatamodelTypes": false,
           },
           "types": {
             // Any definition files to load globally
             "definitionFiles": [],
             // A list of globals to remove from the global scope. Accepts full libraries
             // or particular functions (e.g., `table` or `table.clone`)
-            "disabledGlobals": []
+            "disabledGlobals": [],
           },
           "inlayHints": {
             // Show inlay hints for function parameter names
@@ -120,7 +120,7 @@ this:
             // The maximum length a type hint should be before being truncated
             "typeHintMaxLength": 50,
             // Whether type annotation inlay hints can be made insertable by clicking
-            "makeInsertable": true
+            "makeInsertable": true,
           },
           "hover": {
             // Enable hover
@@ -132,7 +132,7 @@ this:
             // Use strict DataModel types in hover display. When on, this is equivalent to autocompletion types. When off, this is equivalent to diagnostic types
             "strictDatamodelTypes": true,
             // Show string length when hovering over a string literal
-            "includeStringLength": true
+            "includeStringLength": true,
           },
           "completion": {
             // Enable autocomplete
@@ -157,12 +157,12 @@ this:
               "requireStyle": "Auto",
               "stringRequires": {
                 // Whether to use string requires when auto-importing requires (roblox platform only)
-                "enabled": false
+                "enabled": false,
               },
               // Whether services and requires should be separated by an empty line
               "separateGroupsWithLine": false,
               // Files that match these globs will not be shown during auto-import
-              "ignoreGlobs": []
+              "ignoreGlobs": [],
             },
             // Add parentheses after completing a function call
             "addParentheses": true,
@@ -173,22 +173,22 @@ this:
             // Whether to show non-function properties when performing a method call with a colon (e.g., `foo:bar`)
             "showPropertiesOnMethodCall": false,
             // Enables the experimental fragment autocomplete system for performance improvements
-            "enableFragmentAutocomplete": false
+            "enableFragmentAutocomplete": false,
           },
           "signatureHelp": {
-            "enabled": true
+            "enabled": true,
           },
           "index": {
             // Whether the whole workspace should be indexed. If disabled, only limited support is
             // available for features such as "Find All References" and "Rename"
             "enabled": true,
             // The maximum amount of files that can be indexed
-            "maxFiles": 10000
-          }
+            "maxFiles": 10000,
+          },
         },
-      }
-    }
-  }
+      },
+    },
+  },
 }
 ```
 
