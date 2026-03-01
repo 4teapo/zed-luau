@@ -5,17 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Fixed syntax highlighting not properly handling type packs in explicit type parameter instantiation.
+
 ## [0.3.6] - 2026-02-26
 
 ### Fixed
 
-- Fixed explicit type parameter in method calls being syntax errors
-- Fixed functions with explicit type parameters not always being highlighted as functions
-- Fixed type of property not being shown in autocomplete
+- Fixed explicit type parameter in method calls being syntax errors.
+- Fixed functions with explicit type parameters not always being highlighted as functions.
+- Fixed type of property not being shown in autocomplete.
 
 ### Changed
 
-- Changed how functions display in autocomplete to `foo(bar, baz)`
+- Changed how functions display in autocomplete to `foo(bar, baz)`.
 
 ## [0.3.5] - 2025-12-30
 
