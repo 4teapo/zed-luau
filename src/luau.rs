@@ -561,7 +561,7 @@ impl zed::Extension for LuauExtension {
                 }
                 args.push(
                     format!(
-                        "--definitions={}/{}",
+                        "--definitions:@roblox={}/{}",
                         &current_dir_str, definitions_file_name
                     )
                     .into(),
