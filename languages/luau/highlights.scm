@@ -2,6 +2,7 @@
 
 [
   "local"
+  "const"
   "while"
   "repeat"
   "until"
@@ -226,6 +227,9 @@
   method: (field_identifier) @function)
 
 (local_function_declaration
+  name: (identifier) @function)
+
+(const_function_declaration
   name: (identifier) @function)
 
 (declare_global_function_declaration
