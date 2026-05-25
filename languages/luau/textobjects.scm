@@ -7,6 +7,9 @@
 (local_function_declaration
   body: (_)* @function.inside) @function.around
 
+(const_function_declaration
+  body: (_)* @function.inside) @function.around
+
 (type_alias_declaration
   type: (_)* @class.inside) @class.around
 

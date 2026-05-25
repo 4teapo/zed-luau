@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added support const support in syntax highlighting & others
+
 ## [0.3.7] - 2026-03-01
 
 ### Fixed

@@ -7,6 +7,13 @@
       name: (identifier) @name
       (#match? @name "^[A-Z][A-Z][A-Z_0-9]*$")) @item))
 
+(const_variable_declaration
+  "const" @context
+  (binding_list
+    (binding
+      name: (identifier) @name
+      (#match? @name "^[A-Z][A-Z][A-Z_0-9]*$")) @item))
+
 (type_alias_declaration
   "export"? @context
   "type" @context
@@ -44,6 +51,14 @@
 
 (local_function_declaration
   "local" @context
+  "function" @context
+  name: (_) @name
+  (parameters
+    "(" @context
+    ")" @context)) @item
+
+(const_function_declaration
+  "const" @context
   "function" @context
   name: (_) @name
   (parameters
