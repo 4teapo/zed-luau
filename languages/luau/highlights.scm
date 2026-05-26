@@ -2,7 +2,6 @@
 
 [
   "local"
-  "const"
   "while"
   "repeat"
   "until"
@@ -230,7 +229,13 @@
   name: (identifier) @function)
 
 (const_function_declaration
-  name: (identifier) @function)
+  [
+    "const" @keyword
+    name: (identifier) @function
+  ])
+
+(const_variable_declaration
+  "const" @keyword)
 
 (declare_global_function_declaration
   name: (identifier) @function)
