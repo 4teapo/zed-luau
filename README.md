@@ -143,7 +143,7 @@ this:
             // Automatic imports configuration
             "imports": {
               // Suggest automatic imports in completion items
-              "enabled": false,
+              "enabled": true,
               // Whether GetService completions are suggested in autocomplete
               "suggestServices": true,
               // When non-empty, only show the services listed when auto-importing
@@ -162,7 +162,9 @@ this:
               // Whether services and requires should be separated by an empty line
               "separateGroupsWithLine": false,
               // Files that match these globs will not be shown during auto-import
-              "ignoreGlobs": [],
+              "ignoreGlobs": ["**/_Index/**"],
+              // Whether or not to use `const` instead of `local`
+              "useConst": false,
             },
             // Add parentheses after completing a function call
             "addParentheses": true,
@@ -172,6 +174,19 @@ this:
             "fillCallArguments": true,
             // Whether to show non-function properties when performing a method call with a colon (e.g., `foo:bar`)
             "showPropertiesOnMethodCall": false,
+            // Whether to show keywords (`if` / `then` / `and` / etc.) during autocomplete
+            "showKeywords": true,
+            // Configuration for the anonymous autofilled function completion entry
+            "anonymousAutofilledFunction": {
+              // Whether to show the "function (anonymous autofilled)" generated function completion entry
+              "enabled": true,
+              // Whether to include type annotations in the generated function snippet
+              "addTypeAnnotations": true,
+              // Whether to add snippet tabstops on each parameter name for quick editing
+              "addTabstopForParameters": true,
+            },
+            // Whether to show deprecated items in autocomplete suggestions
+            "showDeprecatedItems": true,
             // Enables the experimental fragment autocomplete system for performance improvements
             "enableFragmentAutocomplete": false,
           },
@@ -184,6 +199,23 @@ this:
             "enabled": true,
             // The maximum amount of files that can be indexed
             "maxFiles": 10000,
+          },
+          "format": {
+            // Whether to convert single/double quotes to backticks when typing `{` inside strings
+            "convertQuotes": false,
+          },
+          "plugins": {
+            // Whteher plugins are enabled
+            "enabled": false,
+            // Paths to plugin Luau scripts
+            "paths": [],
+            // Timeout for plugin execution in milliseconds
+            "timeoutMs": 5000,
+            // Configuration for plugin filesystem access
+            "fileSystem": {
+              // Whether filesystem access is enabled for plugins
+              "enabled": false,
+            },
           },
         },
       },
