@@ -28,7 +28,9 @@ struct Settings {
     fflags: FFlagsSettings,
     binary: BinarySettings,
     plugin: PluginSettings,
-    definitions: Vec<String>,
+    // Definition files to pass to the language server. May be given either as an array of paths or as a map of package name -> path
+    #[serde(deserialize_with = "deserialize_definition_files")]
+    definitions: Vec<(Option<String>, String)>,
     documentation: Vec<String>,
 }
 
@@ -44,6 +46,49 @@ impl Default for Settings {
             documentation: Default::default(),
         }
     }
+}
+
+/// Deserialize definition files from either an array of paths (unnamed) or a map of
+/// package name -> path. Returns a list of (optional package name, path) pairs.
+fn deserialize_definition_files<'de, D>(
+    deserializer: D,
+) -> std::result::Result<Vec<(Option<String>, String)>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    struct DefinitionFilesVisitor;
+
+    impl<'de> serde::de::Visitor<'de> for DefinitionFilesVisitor {
+        type Value = Vec<(Option<String>, String)>;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("an array of paths or a map of package name to path")
+        }
+
+        fn visit_seq<A>(self, mut seq: A) -> std::result::Result<Self::Value, A::Error>
+        where
+            A: serde::de::SeqAccess<'de>,
+        {
+            let mut files = Vec::new();
+            while let Some(path) = seq.next_element::<String>()? {
+                files.push((None, path));
+            }
+            Ok(files)
+        }
+
+        fn visit_map<A>(self, mut map: A) -> std::result::Result<Self::Value, A::Error>
+        where
+            A: serde::de::MapAccess<'de>,
+        {
+            let mut files = Vec::new();
+            while let Some((name, path)) = map.next_entry::<String, String>()? {
+                files.push((Some(name), path));
+            }
+            Ok(files)
+        }
+    }
+
+    deserializer.deserialize_any(DefinitionFilesVisitor)
 }
 
 #[derive(Debug, Deserialize)]
@@ -167,19 +212,42 @@ fn get_extension_settings(settings_val: Option<serde_json::Value>) -> Result<Set
         serde_path_to_error::deserialize(value).map_err(|e| e.to_string());
     if let Ok(ref mut settings) = result {
         let types = json::get_or_insert_object(&mut settings.luau_lsp, "types");
-        // Merge luau-lsp.types.definitions and definitions. The former is read by the language
-        // server to e.g. not treat definition files as regular luau files. The latter cannot be
-        // removed for backwards compatibility reasons.
-        let definition_files = json::get_or_insert_array(types, "definitionFiles");
-        let old_definition_count = settings.definitions.len();
-        for def in &mut *definition_files {
-            if let Value::String(s) = def {
-                settings.definitions.push(s.clone())
+
+        // Fold `luau-lsp.types.definitionFiles` into `settings.definitions` so all definition
+        // files are registered the same way. Like `definitions`, it may be either an array of
+        // paths (unnamed) or a map of package name -> path
+        match types.remove("definitionFiles") {
+            Some(Value::Array(arr)) => {
+                for value in arr {
+                    if let Value::String(path) = value {
+                        settings.definitions.push((None, path));
+                    }
+                }
             }
+            Some(Value::Object(map)) => {
+                for (name, value) in map {
+                    if let Value::String(path) = value {
+                        settings.definitions.push((Some(name), path));
+                    }
+                }
+            }
+            _ => {}
         }
-        for i in 0..old_definition_count {
-            definition_files.push(Value::String(settings.definitions[i].clone()));
-        }
+
+        // Re-insert `definitionFiles` as an array of paths. The language server reads this to
+        // avoid treating definition files as regular Luau files; it only looks at the paths, so
+        // package names are irrelevant here. Registration into the global scope is done instead
+        // via the `--definitions` CLI arguments built in `language_server_command`.
+        types.insert(
+            "definitionFiles".to_string(),
+            Value::Array(
+                settings
+                    .definitions
+                    .iter()
+                    .map(|(_, path)| Value::String(path.clone()))
+                    .collect(),
+            ),
+        );
     }
     result
 }
@@ -582,9 +650,18 @@ impl zed::Extension for LuauExtension {
 
             let proj_root_str = &format!("{}/", worktree.root_path());
 
-            for def in &settings.definitions {
-                let prefix = get_prefix(&def, &proj_root_str);
-                args.push(format!("--definitions={prefix}{def}").into());
+            let mut auto_name_index = 0;
+            for (name, path) in &settings.definitions {
+                let prefix = get_prefix(path, &proj_root_str);
+                let package_name = match name {
+                    Some(name) => name.clone(),
+                    None => {
+                        let name = format!("@def{auto_name_index}");
+                        auto_name_index += 1;
+                        name
+                    }
+                };
+                args.push(format!("--definitions:{package_name}={prefix}{path}").into());
             }
 
             for doc in &settings.documentation {
