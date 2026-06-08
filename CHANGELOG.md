@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed user-provided definition files not overriding global declarations and type
+  aliases (e.g. overriding the `vector` global). Definition files are now passed to the
+  language server with explicit, unique package names, so they are no longer silently
+  dropped due to colliding on the default `@roblox` package name. The extension still
+  supports the array form of `definitions` for backwards compatibility.
+
+### Added
+
+- Added support for the map (package name -> path) form of `definitions` and
+  `luau-lsp.types.definitionFiles`, in addition to the existing array form, matching the
+  luau-lsp VS Code extension. Package names provided this way are preserved.
+
 ## [0.3.8] - 2026-05-25
 
 ### Added
