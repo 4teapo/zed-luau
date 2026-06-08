@@ -67,7 +67,8 @@ this:
         // Additional definition file paths to pass to the language server.
         // This can be used interchangeably with `luau-lsp.types.definitionFiles`
         // for legacy reasons.
-        "definitions": [],
+        // "alias": "path"
+        "definitions": {},
         // Additional documentation file paths to pass to the language server.
         "documentation": [],
         // luau-lsp settings. What belongs here is specified below this entire block
@@ -190,6 +191,7 @@ this:
             // Enables the experimental fragment autocomplete system for performance improvements
             "enableFragmentAutocomplete": false,
           },
+          // provides help in the form of tooltips based on type signatures
           "signatureHelp": {
             "enabled": true,
           },

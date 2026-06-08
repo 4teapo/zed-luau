@@ -25,25 +25,3 @@ pub fn get_or_insert_object<'a>(
         }
     }
 }
-
-pub fn get_or_insert_array<'a>(map: &'a mut Map<String, Value>, key: &str) -> &'a mut Vec<Value> {
-    match map.entry(key.to_string()) {
-        Entry::Vacant(e) => {
-            if let Value::Array(o) = e.insert(Value::Array(Vec::new())) {
-                o
-            } else {
-                unreachable!()
-            }
-        }
-        Entry::Occupied(mut e) => {
-            if !e.get().is_array() {
-                e.insert(Value::Array(Vec::new()));
-            }
-            if let Value::Array(o) = e.into_mut() {
-                o
-            } else {
-                unreachable!()
-            }
-        }
-    }
-}
