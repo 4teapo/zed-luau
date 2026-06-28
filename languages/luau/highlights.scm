@@ -53,6 +53,13 @@
     "with"
   ] @keyword)
 
+(function_declaration
+  "export" @keyword)
+(local_variable_declaration
+  "export" @keyword)
+(const_variable_declaration
+  "export" @keyword)
+
 ; Punctuations
 
 [
@@ -64,8 +71,6 @@
     "}"
     "<"
     ">"
-    "<<"
-    ">>"
 ] @punctuation.bracket
 
 [
